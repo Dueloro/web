@@ -21,7 +21,10 @@ export function GradientField({ className }: { className: string }) {
 
   useEffect(() => {
     const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
-    if (reduced || !canUseWebGL()) return
+    // Skip the WebGL layer on phones (battery/perf) and fall back to the static
+    // composition; only mount it on larger screens where it's the design accent.
+    const isSmall = window.matchMedia('(max-width: 768px)').matches
+    if (reduced || isSmall || !canUseWebGL()) return
     const id = window.setTimeout(() => setReady(true), 300)
     return () => window.clearTimeout(id)
   }, [])
