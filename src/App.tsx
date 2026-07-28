@@ -1,16 +1,156 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState, type ReactNode } from 'react'
 import { GradientField } from './GradientField'
 import { Reveal } from './Reveal'
 
-/** Loops 0..n-1 every `ms`. Frozen under reduced motion. */
-function useTick(n: number, ms: number) {
+/** Pitch deck PDF, served from /public. Large file — hint the size on links. */
+const PITCH_DECK_URL = '/MoneyMatch Deck.pdf'
+const PITCH_DECK_TITLE = 'Opens the pitch deck PDF (~9 MB) in a new tab'
+const MVP_URL = 'https://moneymatch-beta.vercel.app/'
+
+/* ---------- Tiny History-API router (no dependency) ---------- */
+const ROUTES = [
+  '/',
+  '/about',
+  '/beta',
+  '/demo',
+  '/terms',
+  '/privacy',
+  '/responsible-gaming',
+] as const
+
+function useRoute() {
+  const [path, setPath] = useState(window.location.pathname)
+  useEffect(() => {
+    const onPop = () => setPath(window.location.pathname)
+    window.addEventListener('popstate', onPop)
+    return () => window.removeEventListener('popstate', onPop)
+  }, [])
+  return path
+}
+
+function navigate(to: string) {
+  if (to === window.location.pathname) {
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+    return
+  }
+  window.history.pushState({}, '', to)
+  window.dispatchEvent(new PopStateEvent('popstate'))
+}
+
+function RouteLink({
+  to,
+  className,
+  children,
+  onClick,
+}: {
+  to: string
+  className?: string
+  children: ReactNode
+  onClick?: () => void
+}) {
+  return (
+    <a
+      href={to}
+      className={className}
+      onClick={(e) => {
+        e.preventDefault()
+        navigate(to)
+        onClick?.()
+      }}
+    >
+      {children}
+    </a>
+  )
+}
+
+/* ---------- Icons ---------- */
+function LinkedInIcon() {
+  return (
+    <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor" aria-hidden="true">
+      <path d="M4.98 3.5a2.5 2.5 0 1 1 0 5 2.5 2.5 0 0 1 0-5zM3.2 9h3.6v11.5H3.2zM9.3 9h3.45v1.57h.05c.48-.9 1.66-1.85 3.42-1.85 3.66 0 4.33 2.4 4.33 5.53v6.25h-3.6v-5.54c0-1.32-.02-3.02-1.84-3.02-1.84 0-2.12 1.44-2.12 2.92v5.64H9.3z" />
+    </svg>
+  )
+}
+
+/* ---------- Game logos (custom marks; swap for official press-kit SVGs) ---------- */
+function GameLogo({ id }: { id: string }) {
+  const common = {
+    viewBox: '0 0 24 24',
+    width: 22,
+    height: 22,
+    'aria-hidden': true as const,
+  }
+  switch (id) {
+    case 'cs2':
+      return (
+        <svg {...common} fill="none" stroke="currentColor" strokeWidth="2">
+          <circle cx="12" cy="12" r="7" />
+          <path strokeLinecap="round" d="M12 1.5v4.5M12 18v4.5M1.5 12H6M18 12h4.5" />
+          <circle cx="12" cy="12" r="1.4" fill="currentColor" stroke="none" />
+        </svg>
+      )
+    case 'pubg':
+      return (
+        <svg {...common} fill="none" stroke="currentColor" strokeWidth="2">
+          <circle cx="10" cy="14" r="6.5" />
+          <path strokeLinecap="round" d="M15 9.5l6.5-4.5" />
+        </svg>
+      )
+    case 'dota':
+      return (
+        <svg {...common} fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M3.5 3.5l9 9M20.5 3.5l-9 9" />
+          <path d="M12.5 12.5l3.2 3.2 2-2-3.2-3.2M11.5 12.5l-3.2 3.2-2-2 3.2-3.2" />
+        </svg>
+      )
+    case 'chess':
+      return (
+        <svg {...common} fill="currentColor">
+          <path d="M6 3v3.2H4.8v3l2 1.9v5.7H5.6V21h12.8v-4.2h-1.2v-5.7l2-1.9v-3H18V3h-3v2h-3V3H9v2H6z" />
+        </svg>
+      )
+    default:
+      return (
+        <svg {...common} fill="currentColor">
+          <circle cx="5" cy="12" r="2" />
+          <circle cx="12" cy="12" r="2" />
+          <circle cx="19" cy="12" r="2" />
+        </svg>
+      )
+  }
+}
+
+/**
+ * Loops 0..n-1 every `ms`, but only while the returned ref is on screen and
+ * motion is allowed. Keeps the page calm: off-screen and reduced-motion mocks
+ * hold still instead of all animating at once.
+ */
+function useInViewTick(n: number, ms: number) {
+  const ref = useRef<HTMLDivElement>(null)
   const [i, setI] = useState(0)
   useEffect(() => {
+    const el = ref.current
+    if (!el) return
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
-    const id = window.setInterval(() => setI((v) => v + 1), ms)
-    return () => window.clearInterval(id)
+    let timer: number | undefined
+    const io = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting && timer === undefined) {
+          timer = window.setInterval(() => setI((v) => v + 1), ms)
+        } else if (!entry.isIntersecting && timer !== undefined) {
+          window.clearInterval(timer)
+          timer = undefined
+        }
+      },
+      { threshold: 0.25 },
+    )
+    io.observe(el)
+    return () => {
+      io.disconnect()
+      if (timer !== undefined) window.clearInterval(timer)
+    }
   }, [ms])
-  return i % n
+  return { ref, i: i % n }
 }
 
 function Eyebrow({ parts }: { parts: string[] }) {
@@ -35,40 +175,80 @@ function LiveChip() {
   )
 }
 
+function BetaChip() {
+  return <span className="beta-chip">BETA</span>
+}
+
 /* ---------- Nav ---------- */
+function Brand({ onClick }: { onClick?: () => void }) {
+  return (
+    <RouteLink to="/" className="nav-brand" onClick={onClick}>
+      <span className="mark" aria-hidden="true" />
+      <span className="brand-lockup">
+        <span className="brand-name">MONEY MATCH</span>
+        <span className="brand-by">by Dueloro</span>
+      </span>
+    </RouteLink>
+  )
+}
+
 function Nav() {
+  const [open, setOpen] = useState(false)
+  const close = () => setOpen(false)
   return (
     <nav className="nav">
       <div className="nav-inner">
-        <a href="#top" className="nav-brand">
-          <span className="mark" aria-hidden="true" />
-          DUELORO
-        </a>
+        <Brand onClick={close} />
         <div className="nav-links">
-          <a href="#how">HOW IT WORKS</a>
-          <a href="#games">GAMES</a>
-          <a href="#fairness">FAIRNESS</a>
-          <a href="#team">TEAM</a>
-          <a href="#faq">FAQ</a>
+          <RouteLink to="/">HOME</RouteLink>
+          <RouteLink to="/about">ABOUT</RouteLink>
+          <RouteLink to="/demo">DEMO</RouteLink>
+          <a href={PITCH_DECK_URL} title={PITCH_DECK_TITLE} target="_blank" rel="noopener noreferrer">
+            PITCH DECK
+          </a>
         </div>
-        <a href="#cta" className="btn btn-primary">
-          JOIN THE BETA
-        </a>
+        <div className="nav-actions">
+          <RouteLink to="/beta" className="btn btn-primary nav-cta">
+            JOIN THE BETA
+          </RouteLink>
+          <button
+            type="button"
+            className="nav-toggle"
+            aria-label="Menu"
+            aria-expanded={open}
+            onClick={() => setOpen((v) => !v)}
+          >
+            <span className={`nav-burger${open ? ' open' : ''}`} aria-hidden="true" />
+          </button>
+        </div>
       </div>
+      {open && (
+        <div className="nav-mobile">
+          <RouteLink to="/" onClick={close}>HOME</RouteLink>
+          <RouteLink to="/about" onClick={close}>ABOUT</RouteLink>
+          <RouteLink to="/demo" onClick={close}>DEMO</RouteLink>
+          <a href={PITCH_DECK_URL} title={PITCH_DECK_TITLE} target="_blank" rel="noopener noreferrer" onClick={close}>
+            PITCH DECK
+          </a>
+          <RouteLink to="/beta" className="btn btn-primary" onClick={close}>
+            JOIN THE BETA
+          </RouteLink>
+        </div>
+      )}
     </nav>
   )
 }
 
 /* ---------- S1: Hero ---------- */
 const TICKER_ITEMS = [
-  { game: 'CHESS', tone: 'tk-lime', pot: '$10', live: false },
   { game: 'CS2', tone: 'tk-amber', pot: '$25', live: true },
+  { game: 'PUBG', tone: 'tk-lime', pot: '$15', live: false },
   { game: 'DOTA 2', tone: 'tk-crimson', pot: '$40', live: false },
-  { game: 'CHESS', tone: 'tk-lime', pot: '$15', live: true },
+  { game: 'CHESS', tone: 'tk-lime', pot: '$10', live: true },
   { game: 'CS2', tone: 'tk-amber', pot: '$20', live: false },
   { game: 'DOTA 2', tone: 'tk-crimson', pot: '$30', live: true },
-  { game: 'CHESS', tone: 'tk-lime', pot: '$50', live: false },
-  { game: 'CS2', tone: 'tk-amber', pot: '$25', live: false },
+  { game: 'PUBG', tone: 'tk-lime', pot: '$50', live: false },
+  { game: 'CHESS', tone: 'tk-lime', pot: '$15', live: false },
 ]
 
 function Ticker() {
@@ -125,9 +305,12 @@ function Hero() {
       <div className="hero-content">
         <div className="hero-badges">
           <span className="mark mark-hero" aria-hidden="true" />
-          <span className="sticker">OPEN BETA — SEASON 01</span>
+          <span className="brand-lockup hero-lockup">
+            <span className="brand-name">MONEY MATCH</span>
+            <span className="brand-by">by Dueloro</span>
+          </span>
         </div>
-        <Eyebrow parts={['SKILL-BASED', 'PEER-TO-PEER', 'FLAT RAKE']} />
+        <Eyebrow parts={['SKILL-BASED', 'PEER-TO-PEER', 'ESCROWED']} />
         <h1>
           Put your <span className="hl">skill</span> on the line.
         </h1>
@@ -135,11 +318,17 @@ function Hero() {
           Real stakes on your own matches. We hold the pot. Winner takes it.
         </p>
         <div className="hero-ctas">
-          <a href="#cta" className="btn btn-primary">
+          <RouteLink to="/beta" className="btn btn-primary">
             JOIN THE BETA
-          </a>
-          <a href="#how" className="btn btn-ghost">
-            HOW IT WORKS
+          </RouteLink>
+          <a
+            href={PITCH_DECK_URL}
+            title={PITCH_DECK_TITLE}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="btn btn-ghost"
+          >
+            PITCH DECK
           </a>
         </div>
       </div>
@@ -166,12 +355,12 @@ function Trust() {
               Locked before play.
             </div>
             <div className="trust-line">
-              <span className="k">FLAT RAKE ONLY</span>
+              <span className="k">NO HOUSE LINE</span>
               No odds. No edge.
             </div>
             <div className="trust-line">
               <span className="k">THE INVARIANT</span>
-              <code>payouts + rake = entries</code>
+              <code>entries → escrow → payout</code>
             </div>
           </div>
         </Reveal>
@@ -182,9 +371,17 @@ function Trust() {
 
 /* ---------- S3: How it works ---------- */
 const STEPS = [
-  { num: '01', name: 'LINK', copy: 'Connect Lichess, FACEIT, or OpenDota.' },
-  { num: '02', name: 'MATCH', copy: 'Same skill band. Pot locks in escrow.' },
-  { num: '03', name: 'PLAY', copy: 'Your usual game. We watch the feed.' },
+  {
+    num: '01',
+    name: 'LINK',
+    copy: 'Connect to your favorite competitive video game.',
+  },
+  {
+    num: '02',
+    name: 'MATCH',
+    copy: 'Match into your skill band. Pot locks in escrow.',
+  },
+  { num: '03', name: 'PLAY', copy: 'Play your usual game. We watch the feed.' },
   { num: '04', name: 'GET PAID', copy: 'Winner takes the pot.' },
 ]
 
@@ -193,11 +390,10 @@ function HowItWorks() {
     <section className="band" id="how">
       <div className="container">
         <Reveal>
-          <Eyebrow parts={['LINK', 'MATCH', 'PLAY', 'GET PAID']} />
+          <Eyebrow parts={['HOW IT WORKS']} />
           <h2 className="section-title">Four steps. No fine print.</h2>
         </Reveal>
         <div className="steps">
-          <div className="steps-sweep" aria-hidden="true" />
           {STEPS.map((s, i) => (
             <Reveal key={s.num} delay={i * 80} as="article">
               <div className="step">
@@ -211,7 +407,7 @@ function HowItWorks() {
           ))}
         </div>
         <p className="steps-footnote">
-          DRAW → <span className="lime">FULL REFUND, ZERO RAKE.</span>
+          DRAW → <span className="lime">FULL REFUND. EVERYONE WHOLE.</span>
         </p>
       </div>
     </section>
@@ -220,11 +416,11 @@ function HowItWorks() {
 
 /* ---------- S4: Games ---------- */
 const GAMES = [
-  { tile: '♞', tone: 'tile-lime', name: 'CHESS', source: 'LICHESS', live: true },
-  { tile: '⌖', tone: 'tile-amber', name: 'COUNTER-STRIKE 2', source: 'FACEIT', live: true },
-  { tile: '⚔', tone: 'tile-crimson', name: 'DOTA 2', source: 'OPENDOTA', live: true },
-  { tile: '♛', tone: '', name: 'CLASH ROYALE', source: '—', live: false },
-  { tile: '◉', tone: '', name: 'ROCKET LEAGUE', source: '—', live: false },
+  { logo: 'cs2', tone: 'tile-amber', name: 'COUNTER-STRIKE 2', source: 'CS2 API', live: true },
+  { logo: 'pubg', tone: 'tile-lime', name: 'PUBG: BATTLEGROUNDS', source: 'PUBG API', live: true },
+  { logo: 'dota', tone: 'tile-crimson', name: 'DOTA 2', source: 'OPENDOTA', live: true },
+  { logo: 'chess', tone: 'tile-lime', name: 'CHESS', source: 'LICHESS', live: true },
+  { logo: 'more', tone: '', name: 'MORE COMING SOON', source: '—', live: false, placeholder: true },
 ]
 
 function Games() {
@@ -232,18 +428,20 @@ function Games() {
     <section className="band" id="games">
       <div className="container">
         <Reveal>
-          <Eyebrow parts={['GAME-AGNOSTIC', 'ADAPTER-BASED']} />
+          <Eyebrow parts={['WORKS WITH THE ACCOUNTS YOU ALREADY HAVE']} />
           <h2 className="section-title">Pick your battleground.</h2>
         </Reveal>
         <Reveal delay={80}>
           <div className="games-table">
             {GAMES.map((g) => (
               <div key={g.name} className={`game-row${g.live ? '' : ' soon'}`}>
-                <div className={`game-tile ${g.tone}`}>{g.tile}</div>
+                <div className={`game-tile ${g.tone}`}>
+                  <GameLogo id={g.logo} />
+                </div>
                 <div className="game-name">{g.name}</div>
                 <div className="game-source mono">{g.source}</div>
                 <div className="game-status">
-                  {g.live ? <LiveChip /> : <span className="chip-soon">SOON</span>}
+                  {g.live ? <BetaChip /> : g.placeholder ? null : <span className="chip-soon">SOON</span>}
                 </div>
               </div>
             ))}
@@ -254,23 +452,23 @@ function Games() {
   )
 }
 
-/* ---------- S5: Product tour (four distinct live mocks) ---------- */
+/* ---------- S5: Product tour — the three game modes + payout ---------- */
 const ROW_STATES = [
   { label: 'MATCHING', cls: 'pending' },
   { label: 'LIVE', cls: 'live' },
   { label: 'SETTLED ✓', cls: 'done' },
 ]
 
-/* Lobby: a stakeable contest list — OPEN rows grow a lime STAKE button */
-function LobbyMock() {
-  const t = useTick(4, 1600)
+/* Head-to-head: a matchmaking list — OPEN rows grow a lime STAKE button */
+function HeadToHeadMock() {
+  const { ref, i: t } = useInViewTick(4, 2600)
   const rows = [
-    { tile: 'K9', who: 'knight_or_flight', sub: '1842 · LICHESS', amt: '$10', offset: 0 },
-    { tile: 'VX', who: 'vexal', sub: 'LVL 7 · FACEIT', amt: '$25', offset: 1 },
+    { tile: 'K9', who: 'knight_or_flight', sub: '1842 · CHESS', amt: '$10', offset: 0 },
+    { tile: 'VX', who: 'vexal', sub: 'LVL 7 · CS2', amt: '$25', offset: 1 },
     { tile: 'MR', who: 'mid_or_feed', sub: 'DIVINE · DOTA 2', amt: '$40', offset: 2 },
   ]
   return (
-    <div>
+    <div ref={ref}>
       {rows.map((r) => {
         const phase = (t + r.offset) % 4
         const open = phase === 0
@@ -307,9 +505,9 @@ const POOLS = [
 ]
 
 function SoloMock() {
-  const t = useTick(4, 1900)
+  const { ref, i: t } = useInViewTick(4, 2800)
   return (
-    <div>
+    <div ref={ref}>
       {POOLS.map((p) => {
         const fill = p.fills[(t + p.offset) % 4]
         const cleared = fill >= p.target
@@ -343,29 +541,29 @@ function SoloMock() {
   )
 }
 
-/* Friends: a challenge thread — incoming and outgoing callouts */
-function FriendsMock() {
-  const t = useTick(2, 2400)
+/* Tournament: a static bracket leaderboard with prize splits */
+const TOURNEY = [
+  { rank: '1', who: 'vexal', pts: '2,450', cut: '50%' },
+  { rank: '2', who: 'YOU', pts: '2,210', cut: '30%', you: true },
+  { rank: '3', who: 'd0ppler', pts: '1,980', cut: '20%' },
+  { rank: '4', who: 'nadeking', pts: '1,760', cut: '—' },
+]
+
+function TournamentMock() {
   return (
-    <div className="chat">
-      <div className="msg in">
-        dkarov · CHESS BLITZ · <b>$15</b>
-        <span className="meta">"you're not beating me twice"</span>
-        <span className="msg-actions">
-          <span className="chip-btn yes">ACCEPT</span>
-          <span className="chip-btn">DECLINE</span>
-        </span>
+    <div className="tourney">
+      <div className="tourney-head">
+        <span>PLATINUM BRACKET · 32 PLAYERS</span>
+        <span className="amt">$320 POT</span>
       </div>
-      <div className="msg out">
-        YOU → sbeve · CS2 ADR DUEL · <b>$20</b>
-        <span className="meta lime">ACCEPTED ✓ — POT LOCKED</span>
-      </div>
-      <div className="msg in">
-        tenz_fan_99 · DOTA 2 KDA · <b>$10</b>
-        <span className="meta pending pop" key={`p${t}`}>
-          {t === 0 ? 'WAITING FOR YOU…' : 'EXPIRES IN 12:00'}
-        </span>
-      </div>
+      {TOURNEY.map((r) => (
+        <div className={`tourney-row${r.you ? ' you' : ''}`} key={r.rank}>
+          <span className="tr-rank">{r.rank}</span>
+          <span className="tr-who">{r.who}</span>
+          <span className="tr-pts">{r.pts}</span>
+          <span className={`tr-cut${r.cut === '—' ? ' out' : ''}`}>{r.cut}</span>
+        </div>
+      ))}
     </div>
   )
 }
@@ -382,10 +580,10 @@ const LEDGER = [
 const BALANCES = ['$128.50', '$103.50', '$118.50', '$108.50', '$127.50', '$175.00']
 
 function WalletMock() {
-  const t = useTick(LEDGER.length, 2200)
+  const { ref, i: t } = useInViewTick(LEDGER.length, 3000)
   const rows = [0, 1, 2, 3].map((i) => LEDGER[(t + i) % LEDGER.length])
   return (
-    <div className="mock-ledger">
+    <div className="mock-ledger" ref={ref}>
       <div className="wallet-balance">
         <span className="k">BALANCE</span>
         <span className="v pop" key={`b${t}`}>
@@ -404,32 +602,32 @@ function WalletMock() {
 
 const TOUR = [
   {
-    label: 'LOBBY',
+    label: 'HEAD-TO-HEAD',
     tone: 'shot-lime',
-    title: 'One click. Pot locked.',
-    copy: 'Open contests at your level.',
-    mock: <LobbyMock />,
+    title: 'Challenge a friend, or get matched.',
+    copy: 'Same skill band, both stake, pot locks in escrow.',
+    mock: <HeadToHeadMock />,
   },
   {
     label: 'SOLO POOLS',
     tone: 'shot-amber',
-    title: 'You vs the stat line.',
-    copy: 'Clear it, split the pot. Miss, full refund.',
+    title: 'You vs. the stat line.',
+    copy: 'Clear the target, split the pot. Miss it, full refund.',
     mock: <SoloMock />,
     flip: true,
   },
   {
-    label: 'FRIENDS',
+    label: 'TOURNAMENTS',
     tone: 'shot-crimson',
-    title: 'Call out a friend.',
-    copy: 'Escrow settles it — not the group chat.',
-    mock: <FriendsMock />,
+    title: 'Your whole bracket, one pot.',
+    copy: 'Anyone at your level joins. Top finishers take the biggest share.',
+    mock: <TournamentMock />,
   },
   {
     label: 'WALLET',
     tone: 'shot-lime',
     title: 'Every cent, on the record.',
-    copy: 'payouts + rake = entries. Always.',
+    copy: 'Every entry and payout, always accounted for.',
     mock: <WalletMock />,
     flip: true,
   },
@@ -440,17 +638,14 @@ function Tour() {
     <section className="band">
       <div className="container">
         <Reveal>
-          <Eyebrow parts={['QUEUE UP', 'CASH OUT']} />
-          <h2 className="section-title">Queue up. Cash out.</h2>
+          <Eyebrow parts={['HEAD-TO-HEAD', 'SOLO POOLS', 'TOURNAMENTS']} />
+          <h2 className="section-title">Three ways to play. One way to get paid.</h2>
         </Reveal>
         {TOUR.map((t) => (
           <Reveal key={t.label}>
             <div className={`tour-row${t.flip ? ' flip' : ''}`}>
-              <div className={`tour-shot ${t.tone}`}>
-                <div className="shot-label">
-                  {t.label}
-                  <LiveChip />
-                </div>
+              <div className={`tour-shot ${t.tone}`} aria-hidden="true">
+                <div className="shot-label">{t.label}</div>
                 <div className="shot-body">{t.mock}</div>
               </div>
               <div className="tour-copy">
@@ -465,19 +660,10 @@ function Tour() {
   )
 }
 
-/* ---------- S6: Overlay (live stat race) ---------- */
-const KILLFEED = [
-  'vexal ⌖ r1ftw4lker',
-  'YOU ⌖ vexal',
-  'd0ppler ⌖ nadeking',
-  'YOU ⌖ d0ppler',
-  'nadeking ⌖ vexal',
-]
-const YOU_KILLS = [18, 19, 19, 20, 21, 22]
-const VEX_KILLS = [16, 16, 17, 17, 18, 18]
+/* ---------- S6: Overlay (static preview) ---------- */
+const KILLFEED = ['YOU ⌖ vexal', 'd0ppler ⌖ nadeking', 'YOU ⌖ d0ppler']
 
 function Overlay() {
-  const t = useTick(6, 1800)
   return (
     <section className="overlay-band">
       <div className="container">
@@ -485,7 +671,7 @@ function Overlay() {
           <Reveal>
             <div className="overlay-stage" aria-label="In-game overlay preview">
               <span className="hud" style={{ top: 18, left: 20 }}>
-                DE_ANCIENT · 21/24
+                DE_ANCIENT · 22/24
               </span>
               <span className="hud" style={{ bottom: 18, left: 20 }}>
                 14 : 7
@@ -494,26 +680,15 @@ function Overlay() {
                 3v2
               </span>
               <div className="killfeed">
-                {[0, 1, 2].map((i) => {
-                  const line = KILLFEED[(t + i) % KILLFEED.length]
-                  return (
-                    <span
-                      key={line + t}
-                      className={`pop${line.startsWith('YOU') ? ' you' : ''}`}
-                    >
-                      {line}
-                    </span>
-                  )
-                })}
+                {KILLFEED.map((line) => (
+                  <span key={line} className={line.startsWith('YOU') ? 'you' : ''}>
+                    {line}
+                  </span>
+                ))}
               </div>
               <div className="overlay-card">
                 <div className="oc-head">
-                  <span
-                    className="mono"
-                    style={{ fontSize: 10, letterSpacing: '0.14em', color: 'var(--text-faint)' }}
-                  >
-                    CS2 STAT DUEL
-                  </span>
+                  <span className="oc-title mono">CS2 STAT DUEL</span>
                   <LiveChip />
                 </div>
                 <div className="oc-body">
@@ -523,15 +698,11 @@ function Overlay() {
                   </div>
                   <div className="oc-row">
                     <span>YOU</span>
-                    <span className="v pop" key={`y${t}`}>
-                      {YOU_KILLS[t]}
-                    </span>
+                    <span className="v">22</span>
                   </div>
                   <div className="oc-row">
                     <span>VEXAL</span>
-                    <span className="v pop" key={`v${t}`}>
-                      {VEX_KILLS[t]}
-                    </span>
+                    <span className="v">18</span>
                   </div>
                 </div>
               </div>
@@ -549,83 +720,52 @@ function Overlay() {
   )
 }
 
-/* ---------- S7: Fairness ---------- */
-const FAIRNESS = [
-  { k: 'SKILL BANDS, NOT ODDS', p: 'Matched at your rating.' },
-  { k: 'HOST-VERIFIED RESULTS', p: 'Official APIs. No screenshots.' },
-  { k: 'ESCROW + FLAT RAKE', p: 'Locked pots. One fixed cut.' },
-  { k: 'VERIFIED IDENTITY', p: 'One person, one account.' },
-  { k: 'GEO-FENCED & 18+', p: 'Only where legal.' },
-  { k: 'RESPONSIBLE GAMING', p: 'Limits and self-exclusion, built in.' },
+/* ---------- Straight answers (objection handling) ---------- */
+const ANSWERS = [
+  {
+    q: 'Is this gambling?',
+    a: 'No house, no odds, no games of chance. You wager on your own skill in games you already play, only where skill contests are legal.',
+  },
+  {
+    q: 'Is it real money?',
+    a: 'Yes. Real stakes on real matches. Every pot is escrowed before play and paid to the winner.',
+  },
+  {
+    q: 'How do I get paid?',
+    a: 'Winner takes the pot. It lands in your wallet the moment results verify. Then cash out.',
+  },
+  {
+    q: 'How are results verified?',
+    a: 'Straight from each game’s official feed: CS2, PUBG, Dota 2, Lichess. No screenshots, no self-reporting, no disputes.',
+  },
+  {
+    q: 'Where can I play?',
+    a: 'Only where skill-based wagering is permitted, and only if you’re 18 or older (or the local legal age).',
+  },
+  {
+    q: 'How do you make money?',
+    a: 'A small, disclosed fee on settled contests. We never take a side and never profit from you losing.',
+  },
 ]
 
-function Fairness() {
+function StraightAnswers() {
   return (
-    <section className="band" id="fairness">
+    <section className="band" id="answers">
       <div className="container">
         <Reveal>
-          <Eyebrow parts={['FAIRNESS', 'IN PLAIN SIGHT']} />
-          <h2 className="section-title">The boring parts, done right.</h2>
+          <Eyebrow parts={['NO HOUSE', 'NO ODDS', 'NO MYSTERY']} />
+          <h2 className="section-title">Straight answers.</h2>
         </Reveal>
         <div className="fair-grid">
-          {FAIRNESS.map((f, i) => (
-            <Reveal key={f.k} delay={(i % 3) * 80}>
+          {ANSWERS.map((f, i) => (
+            <Reveal key={f.q} delay={(i % 3) * 80}>
               <div className="fair-cell">
-                <span className="k">{f.k}</span>
-                <p>{f.p}</p>
+                <span className="k">{f.q}</span>
+                <p>{f.a}</p>
               </div>
             </Reveal>
           ))}
         </div>
-      </div>
-    </section>
-  )
-}
-
-/* ---------- S8: Why us ---------- */
-const COMPARE_ROWS: [string, string, string, string, string][] = [
-  ['Bet against a house line', '✓', '—', '—', '✕'],
-  ['Bet on other people', '✓', '✓', '—', '✕'],
-  ['Play in-house minigames', '—', '—', '✓', '✕'],
-  ['Wager on your own real match', '—', '—', '—', '✓'],
-]
-
-function WhyUs() {
-  return (
-    <section className="band">
-      <div className="container">
-        <Reveal>
-          <Eyebrow parts={['WHY US']} />
-          <h2 className="section-title">The category we're actually in.</h2>
-        </Reveal>
-        <Reveal delay={80}>
-          <div className="compare">
-            <table>
-              <thead>
-                <tr>
-                  <th scope="col"></th>
-                  <th scope="col">SPORTSBOOK</th>
-                  <th scope="col">FANTASY</th>
-                  <th scope="col">SKILLZ-STYLE</th>
-                  <th scope="col" className="us">
-                    DUELORO
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {COMPARE_ROWS.map(([label, a, b, c, us]) => (
-                  <tr key={label}>
-                    <td>{label}</td>
-                    <td>{a}</td>
-                    <td>{b}</td>
-                    <td>{c}</td>
-                    <td className={us === '✓' ? 'us' : 'us-dim'}>{us}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </Reveal>
       </div>
     </section>
   )
@@ -633,122 +773,132 @@ function WhyUs() {
 
 /* ---------- Team ---------- */
 const TEAM = [
-  {
-    initials: 'MW',
-    tone: 'tile-lime',
-    name: 'Mazlowe Wood',
-    role: 'FOUNDER',
-  },
-  {
-    initials: 'TV',
-    tone: 'tile-amber',
-    name: 'Thomas Veasy',
-    role: 'FOUNDER',
-  },
-  {
-    initials: 'SM',
-    tone: 'tile-crimson',
-    name: 'Shreyansh Misra',
-    role: 'ENGINEERING',
-  },
-  {
-    initials: 'SZ',
-    tone: 'tile-lime',
-    name: 'Sonny Zhang',
-    role: 'ENGINEERING',
-  },
+  { initials: 'MW', tone: 'tile-lime', name: 'Mazlowe Wood', role: 'CEO', url: 'https://www.linkedin.com/in/elliot-wood-985741269/' },
+  { initials: 'TV', tone: 'tile-amber', name: 'Thomas Veasy', role: 'COO', url: 'https://www.linkedin.com/in/thomasveasy/' },
+  { initials: 'SM', tone: 'tile-crimson', name: 'Shreyansh Misra', role: 'CTO · PRODUCT', url: 'https://www.linkedin.com/in/shreyanshmisra/' },
+  { initials: 'SZ', tone: 'tile-lime', name: 'Sonny Zhang', role: 'CTO · INFRA', url: 'https://www.linkedin.com/in/fumingzhang1/' },
+  { initials: 'SG', tone: 'tile-amber', name: 'Steve Gorson', role: 'CMO', url: 'https://www.linkedin.com/in/stevegorson/' },
 ]
+
+function TeamGrid() {
+  return (
+    <div className="team-grid">
+      {TEAM.map((m, i) => (
+        <Reveal key={m.name} delay={(i % 5) * 80}>
+          <a
+            className="team-cell"
+            href={m.url}
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label={`${m.name}, ${m.role}, on LinkedIn`}
+          >
+            <div className={`team-avatar ${m.tone}`}>{m.initials}</div>
+            <div className="team-name">{m.name}</div>
+            <div className="team-role">{m.role}</div>
+            <span className="team-linkedin" aria-hidden="true">
+              <LinkedInIcon />
+            </span>
+          </a>
+        </Reveal>
+      ))}
+    </div>
+  )
+}
 
 function Team() {
   return (
     <section className="band" id="team">
       <div className="container">
         <Reveal>
-          <Eyebrow parts={['THE TEAM', 'REAL NAMES', 'ACCOUNTABLE']} />
-          <h2 className="section-title">The people holding the pot.</h2>
+          <h2 className="section-title">The team behind Money Match.</h2>
         </Reveal>
-        <div className="team-grid">
-          {TEAM.map((m, i) => (
-            <Reveal key={m.name} delay={(i % 4) * 80}>
-              <div className="team-cell">
-                <div className={`team-avatar ${m.tone}`}>{m.initials}</div>
-                <div className="team-name">{m.name}</div>
-                <div className="team-role">{m.role}</div>
-              </div>
-            </Reveal>
-          ))}
-          <Reveal delay={320}>
-            <a href="#cta" className="team-cell hiring">
-              <div className="team-avatar">+1</div>
-              <div className="team-name">You?</div>
-              <div className="team-role">WE'RE HIRING</div>
-            </a>
-          </Reveal>
-        </div>
+        <TeamGrid />
       </div>
     </section>
   )
 }
 
-/* ---------- S9: FAQ ---------- */
-const FAQS = [
-  {
-    q: 'Is this gambling?',
-    a: 'No. No house line, no odds, no games of chance — skill contests on your own matches, only where legal.',
-  },
-  {
-    q: 'How do you make money?',
-    a: "One flat rake on settled pots. That's it.",
-  },
-  {
-    q: 'How are results verified?',
-    a: 'Official feeds from Lichess, FACEIT, and OpenDota. No screenshots, no disputes.',
-  },
-  {
-    q: 'Where is it available?',
-    a: 'Only where skill contests are permitted. 18+.',
-  },
-  {
-    q: 'Is it real money?',
-    a: 'Play-money at launch. Real money rolls out region by region.',
-  },
-]
+/* ---------- Beta signup — real email collection ---------- */
+/**
+ * Collects a beta email. Persists every signup to localStorage so submissions
+ * are captured locally, and POSTs to VITE_BETA_SIGNUP_ENDPOINT when configured
+ * (e.g. a Formspree/Buttondown/API URL) for real off-device collection.
+ */
+async function submitBetaSignup(email: string) {
+  const clean = email.trim()
+  try {
+    const key = 'dueloro_beta_signups'
+    const list: { email: string; ts: string }[] = JSON.parse(
+      localStorage.getItem(key) || '[]',
+    )
+    if (!list.some((s) => s.email.toLowerCase() === clean.toLowerCase())) {
+      list.push({ email: clean, ts: new Date().toISOString() })
+      localStorage.setItem(key, JSON.stringify(list))
+    }
+  } catch {
+    /* ignore storage failures */
+  }
 
-function Faq() {
-  const [open, setOpen] = useState<number | null>(0)
-  return (
-    <section className="band" id="faq">
-      <div className="container">
-        <Reveal>
-          <Eyebrow parts={['FAQ']} />
-          <h2 className="section-title">Asked, answered.</h2>
-        </Reveal>
-        <Reveal delay={80}>
-          <div className="faq">
-            {FAQS.map((f, i) => (
-              <div className="faq-item" key={f.q}>
-                <button
-                  className="faq-q"
-                  aria-expanded={open === i}
-                  onClick={() => setOpen(open === i ? null : i)}
-                >
-                  {f.q}
-                  <span className="plus">{open === i ? '−' : '+'}</span>
-                </button>
-                {open === i && <p className="faq-a">{f.a}</p>}
-              </div>
-            ))}
-          </div>
-        </Reveal>
-      </div>
-    </section>
-  )
+  const endpoint = (import.meta.env as Record<string, string | undefined>)
+    .VITE_BETA_SIGNUP_ENDPOINT
+  if (endpoint) {
+    const res = await fetch(endpoint, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+      body: JSON.stringify({ email: clean, source: 'money-match-web' }),
+    })
+    if (!res.ok) throw new Error('Signup request failed')
+  }
 }
 
-/* ---------- S10: Final CTA + footer ---------- */
-function FinalCta() {
+type SignupState = 'idle' | 'submitting' | 'done' | 'error'
+
+function BetaSignupForm() {
   const [email, setEmail] = useState('')
-  const [sent, setSent] = useState(false)
+  const [state, setState] = useState<SignupState>('idle')
+
+  if (state === 'done') {
+    return <p className="mono signup-done">YOU'RE ON THE LIST. WE'LL BE IN TOUCH.</p>
+  }
+
+  return (
+    <form
+      className="cta-form"
+      onSubmit={async (e) => {
+        e.preventDefault()
+        if (!email.trim() || state === 'submitting') return
+        setState('submitting')
+        try {
+          await submitBetaSignup(email)
+          setState('done')
+        } catch {
+          setState('error')
+        }
+      }}
+    >
+      <input
+        type="email"
+        required
+        placeholder="you@domain.com"
+        aria-label="Email address"
+        value={email}
+        onChange={(e) => {
+          setEmail(e.target.value)
+          if (state === 'error') setState('idle')
+        }}
+      />
+      <button type="submit" className="btn btn-primary" disabled={state === 'submitting'}>
+        {state === 'submitting' ? 'SENDING…' : 'GET EARLY ACCESS'}
+      </button>
+      {state === 'error' && (
+        <span className="mono signup-error">SOMETHING WENT WRONG. TRY AGAIN.</span>
+      )}
+    </form>
+  )
+}
+
+/* ---------- Home closing CTA (inline signup) ---------- */
+function HomeCta() {
   return (
     <section id="cta">
       <div className="container">
@@ -760,34 +910,8 @@ function FinalCta() {
               Stake. <span className="w-it">Play.</span>{' '}
               <span className="hl">Get paid.</span>
             </h2>
-            {sent ? (
-              <p
-                className="mono"
-                style={{ color: 'var(--accent)', fontSize: 13, letterSpacing: '0.1em' }}
-              >
-                YOU'RE ON THE LIST.
-              </p>
-            ) : (
-              <form
-                className="cta-form"
-                onSubmit={(e) => {
-                  e.preventDefault()
-                  if (email.trim()) setSent(true)
-                }}
-              >
-                <input
-                  type="email"
-                  required
-                  placeholder="YOU@DOMAIN.COM"
-                  aria-label="Email address"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                />
-                <button type="submit" className="btn btn-primary">
-                  GET EARLY ACCESS
-                </button>
-              </form>
-            )}
+            <BetaSignupForm />
+            <p className="cta-reassure mono">One email when your invite's ready.</p>
           </div>
         </div>
       </div>
@@ -795,50 +919,48 @@ function FinalCta() {
   )
 }
 
+/* ---------- Footer ---------- */
 function Footer() {
   return (
     <footer className="footer">
       <div className="container">
         <div className="footer-grid">
           <div>
-            <a href="#top" className="nav-brand">
+            <RouteLink to="/" className="nav-brand">
               <span className="mark" aria-hidden="true" />
-              DUELORO
-            </a>
-            <p
-              className="mono"
-              style={{ color: 'var(--text-faint)', fontSize: 12, letterSpacing: '0.06em', marginTop: 20, maxWidth: 300 }}
-            >
+              <span className="brand-lockup">
+                <span className="brand-name">MONEY MATCH</span>
+                <span className="brand-by">by Dueloro</span>
+              </span>
+            </RouteLink>
+            <p className="footer-tagline mono">
               Skill contests on the games you already play.
             </p>
           </div>
           <div>
-            <h4>PRODUCT</h4>
-            <ul>
-              <li><a href="#how">HOW IT WORKS</a></li>
-              <li><a href="#games">GAMES</a></li>
-              <li><a href="#fairness">FAIRNESS</a></li>
-            </ul>
-          </div>
-          <div>
             <h4>COMPANY</h4>
             <ul>
-              <li><a href="#faq">FAQ</a></li>
-              <li><a href="#cta">JOIN THE BETA</a></li>
-              <li><a href="#top">CONTACT</a></li>
+              <li><RouteLink to="/about">ABOUT</RouteLink></li>
+              <li><RouteLink to="/demo">DEMO</RouteLink></li>
+              <li><RouteLink to="/beta">JOIN THE BETA</RouteLink></li>
+              <li>
+                <a href={PITCH_DECK_URL} title={PITCH_DECK_TITLE} target="_blank" rel="noopener noreferrer">
+                  PITCH DECK
+                </a>
+              </li>
             </ul>
           </div>
           <div>
             <h4>LEGAL</h4>
             <ul>
-              <li><a href="#top">TERMS</a></li>
-              <li><a href="#top">PRIVACY</a></li>
-              <li><a href="#top">RESPONSIBLE GAMING</a></li>
+              <li><RouteLink to="/terms">TERMS</RouteLink></li>
+              <li><RouteLink to="/privacy">PRIVACY</RouteLink></li>
+              <li><RouteLink to="/responsible-gaming">RESPONSIBLE GAMING</RouteLink></li>
             </ul>
           </div>
         </div>
         <div className="footer-compliance">
-          18+ · SKILL CONTESTS ONLY WHERE PERMITTED · PLAY-MONEY AT LAUNCH
+          18+ · SKILL CONTESTS ONLY WHERE PERMITTED
           <br />© {new Date().getFullYear()} DUELORO
         </div>
       </div>
@@ -846,23 +968,323 @@ function Footer() {
   )
 }
 
+/* ---------- Pages ---------- */
+function Home() {
+  return (
+    <>
+      <Hero />
+      <Trust />
+      <HowItWorks />
+      <Games />
+      <Tour />
+      <Overlay />
+      <StraightAnswers />
+      <Team />
+      <HomeCta />
+    </>
+  )
+}
+
+function BetaPage() {
+  return (
+    <section className="page">
+      <div className="container page-inner">
+        <Reveal>
+          <Eyebrow parts={['JOIN THE BETA']} />
+          <h1 className="page-title">
+            Get in <span className="hl">early.</span>
+          </h1>
+          <p className="page-sub">
+            Money Match is opening in waves. Drop your email and we'll pull you
+            in, with the earliest access and first pots.
+          </p>
+        </Reveal>
+        <Reveal delay={80}>
+          <div className="beta-form-wrap">
+            <BetaSignupForm />
+            <p className="beta-reassure mono">
+              One email when your invite's ready. Your address stays with us.
+            </p>
+          </div>
+        </Reveal>
+        <Reveal delay={160}>
+          <div className="beta-mvp">
+            <a href={MVP_URL} target="_blank" rel="noopener noreferrer" className="btn btn-ghost">
+              Access the MVP →
+            </a>
+            <span className="beta-mvp-note mono">For approved testers only.</span>
+          </div>
+        </Reveal>
+      </div>
+    </section>
+  )
+}
+
+function DemoPage() {
+  return (
+    <section className="page">
+      <div className="container page-inner">
+        <Reveal>
+          <Eyebrow parts={['DEMO']} />
+          <h1 className="page-title">See it in motion.</h1>
+          <p className="page-sub">
+            A full product walkthrough is on the way. Check back soon.
+          </p>
+        </Reveal>
+        <Reveal delay={80}>
+          <div className="demo-frame">
+            <span className="demo-placeholder mono">DEMO VIDEO COMING SOON</span>
+          </div>
+        </Reveal>
+      </div>
+    </section>
+  )
+}
+
+function LegalStub({ title }: { title: string }) {
+  return (
+    <section className="page">
+      <div className="container page-inner">
+        <Reveal>
+          <Eyebrow parts={['LEGAL']} />
+          <h1 className="page-title">{title}</h1>
+          <p className="page-sub">
+            This page is being drafted and will be published before Money Match
+            opens more broadly. Check back soon.
+          </p>
+        </Reveal>
+      </div>
+    </section>
+  )
+}
+
+function ResponsibleGamingPage() {
+  return (
+    <section className="page">
+      <div className="container page-inner">
+        <Reveal>
+          <Eyebrow parts={['RESPONSIBLE GAMING']} />
+          <h1 className="page-title">Play within your limits.</h1>
+          <p className="page-sub">
+            Money Match is built for skill, not for chasing losses. Wagering
+            should stay fun, deliberate, and affordable. Here's how we keep it
+            that way, and how to get help if it stops being a game.
+          </p>
+        </Reveal>
+
+        <Reveal delay={80}>
+          <div className="legal-body">
+            <h2>Our commitment</h2>
+            <p>
+              We never take a side and we never profit from you losing control.
+              Pots are escrowed, results are host-verified, and our only revenue
+              comes from a small, disclosed fee on settled contests, not from
+              your losses. We design against compulsive play, not for it.
+            </p>
+
+            <h2>Eligibility</h2>
+            <ul>
+              <li>You must be 18 or older (or the legal age in your region, whichever is higher).</li>
+              <li>Real-money contests are offered only where skill-based wagering is permitted.</li>
+              <li>One verified identity per person. No duplicate or shared accounts.</li>
+            </ul>
+
+            <h2>Tools to stay in control</h2>
+            <p>These controls are built into your account settings:</p>
+            <ul>
+              <li><strong>Deposit &amp; wager limits.</strong> Set daily, weekly, or monthly caps. Lowering a limit takes effect immediately.</li>
+              <li><strong>Session reminders.</strong> Get a nudge after a set amount of time in the app.</li>
+              <li><strong>Cool-off.</strong> Pause staking for 24 hours up to 6 weeks, any time.</li>
+              <li><strong>Self-exclusion.</strong> Lock yourself out for 6 months or more. We honor it across every account tied to your identity.</li>
+            </ul>
+
+            <h2>Know the warning signs</h2>
+            <p>It may be time to step back if you:</p>
+            <ul>
+              <li>Wager more than you can comfortably afford to lose.</li>
+              <li>Play to win back money you've already lost.</li>
+              <li>Borrow money or neglect work, school, or relationships to play.</li>
+              <li>Feel anxious, irritable, or secretive about how much you play.</li>
+            </ul>
+
+            <h2>Getting help</h2>
+            <p>
+              If gambling is affecting you or someone you know, confidential help
+              is available 24/7 and it's free:
+            </p>
+            <ul>
+              <li><strong>National Problem Gambling Helpline:</strong> call or text <a href="tel:1-800-522-4700">1-800-522-4700</a>. Visit <a href="https://www.ncpgambling.org/" target="_blank" rel="noopener noreferrer">ncpgambling.org</a>.</li>
+              <li><strong>Gamblers Anonymous:</strong> <a href="https://www.gamblersanonymous.org/" target="_blank" rel="noopener noreferrer">gamblersanonymous.org</a></li>
+            </ul>
+
+            <h2>Contact us</h2>
+            <p>
+              To set limits, self-exclude, or ask a question, reach our team at{' '}
+              <a href="mailto:support@dueloro.com">support@dueloro.com</a>. We
+              respond to responsible-gaming requests first.
+            </p>
+            <p className="legal-note mono">
+              THIS PAGE IS A DRAFT AND WILL BE FINALIZED BEFORE REAL-MONEY LAUNCH.
+            </p>
+          </div>
+        </Reveal>
+      </div>
+    </section>
+  )
+}
+
+function AboutPage() {
+  return (
+    <section className="page">
+      <div className="container page-inner">
+        <Reveal>
+          <Eyebrow parts={['ABOUT', 'MONEY MATCH BY DUELORO']} />
+          <h1 className="page-title">
+            Make skill <span className="hl">pay.</span>
+          </h1>
+          <p className="page-sub">
+            We're building the first place you can put real stakes on the games
+            you already play, and actually trust the result.
+          </p>
+        </Reveal>
+
+        <Reveal delay={80}>
+          <div className="legal-body">
+            <h2>The mission</h2>
+            <p>
+              Competitive players already grind for pride. Money Match makes that
+              skill pay, safely: peer-to-peer stakes, escrowed pots, automated
+              verification, and instant payouts. No house, no odds, no edge. We
+              hold the pot and we never take a side.
+            </p>
+
+            <h2>The category we're creating</h2>
+            <p>
+              Sportsbooks bet against you. Fantasy has you bet on other people.
+              Skill-gaming apps drop you into their own minigames. Money Match is
+              the only place you wager on your <strong>own real matches</strong>,
+              in the games you already love, across three modes: head-to-head,
+              solo pools, and tournaments.
+            </p>
+
+            <h2>Why now</h2>
+            <p>
+              Official game APIs (CS2, PUBG, Dota 2, Lichess) make instant,
+              tamper-proof result verification possible for the first time. A
+              generation raised on esports and instant payments expects to
+              compete for real stakes. And skill-based contests are carving out
+              clear legal room, distinct from gambling. The rails finally exist.
+            </p>
+
+            <h2>How we make money</h2>
+            <p>
+              A small, transparent fee on settled contests, and nothing else. Our
+              incentives point the same direction as yours: more fair matches,
+              more trust, more play.
+            </p>
+          </div>
+        </Reveal>
+
+        <Reveal delay={120}>
+          <div className="about-team">
+            <h2 className="section-title">The team.</h2>
+            <TeamGrid />
+          </div>
+        </Reveal>
+
+        <Reveal delay={160}>
+          <div className="about-cta">
+            <a href={PITCH_DECK_URL} title={PITCH_DECK_TITLE} target="_blank" rel="noopener noreferrer" className="btn btn-primary">
+              SEE THE PITCH DECK
+            </a>
+            <RouteLink to="/beta" className="btn btn-ghost">
+              JOIN THE BETA
+            </RouteLink>
+          </div>
+        </Reveal>
+      </div>
+    </section>
+  )
+}
+
+function NotFound() {
+  return (
+    <section className="page">
+      <div className="container page-inner">
+        <Eyebrow parts={['404']} />
+        <h1 className="page-title">Nothing staked here.</h1>
+        <p className="page-sub">That page doesn't exist. Head back to the action.</p>
+        <div className="beta-mvp">
+          <RouteLink to="/" className="btn btn-primary">
+            BACK TO HOME
+          </RouteLink>
+        </div>
+      </div>
+    </section>
+  )
+}
+
+/* ---------- Per-page metadata ---------- */
+const PAGE_META: Record<string, { title: string; desc: string }> = {
+  '/': {
+    title: 'Money Match — Put your skill on the line',
+    desc: 'Money Match, by Dueloro. Real stakes on your own matches. We hold the pot, verify the result, and pay out the winner. We never take a side.',
+  },
+  '/about': {
+    title: 'About — Money Match by Dueloro',
+    desc: 'Money Match makes competitive skill pay: peer-to-peer stakes, escrowed pots, automated verification. The category, the thesis, and the team.',
+  },
+  '/beta': {
+    title: 'Join the beta — Money Match',
+    desc: 'Get early access to Money Match. Drop your email and we will pull you in as the beta opens in waves.',
+  },
+  '/demo': {
+    title: 'Demo — Money Match',
+    desc: 'A full product walkthrough of Money Match is on the way.',
+  },
+  '/terms': {
+    title: 'Terms of Service — Money Match',
+    desc: 'Money Match terms of service.',
+  },
+  '/privacy': {
+    title: 'Privacy Policy — Money Match',
+    desc: 'Money Match privacy policy.',
+  },
+  '/responsible-gaming': {
+    title: 'Responsible Gaming — Money Match',
+    desc: 'How Money Match keeps wagering deliberate and affordable, plus tools and help resources.',
+  },
+}
+
 export default function App() {
+  const path = useRoute()
+
+  useEffect(() => {
+    window.scrollTo(0, 0)
+    const meta = PAGE_META[path] ?? {
+      title: 'Page not found — Money Match',
+      desc: PAGE_META['/'].desc,
+    }
+    document.title = meta.title
+    document
+      .querySelector('meta[name="description"]')
+      ?.setAttribute('content', meta.desc)
+  }, [path])
+
+  let page: ReactNode = <NotFound />
+  if (!ROUTES.includes(path as (typeof ROUTES)[number])) page = <NotFound />
+  else if (path === '/about') page = <AboutPage />
+  else if (path === '/beta') page = <BetaPage />
+  else if (path === '/demo') page = <DemoPage />
+  else if (path === '/terms') page = <LegalStub title="Terms of Service" />
+  else if (path === '/privacy') page = <LegalStub title="Privacy Policy" />
+  else if (path === '/responsible-gaming') page = <ResponsibleGamingPage />
+  else page = <Home />
+
   return (
     <>
       <Nav />
-      <main>
-        <Hero />
-        <Trust />
-        <HowItWorks />
-        <Games />
-        <Tour />
-        <Overlay />
-        <Fairness />
-        <WhyUs />
-        <Team />
-        <Faq />
-        <FinalCta />
-      </main>
+      <main>{page}</main>
       <Footer />
     </>
   )
