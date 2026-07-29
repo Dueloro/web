@@ -777,7 +777,7 @@ const TEAM = [
   { initials: 'TV', tone: 'tile-amber', name: 'Thomas Veasy', role: 'COO', url: 'https://www.linkedin.com/in/thomasveasy/' },
   { initials: 'SM', tone: 'tile-crimson', name: 'Shreyansh Misra', role: 'CTO · PRODUCT', url: 'https://www.linkedin.com/in/shreyanshmisra/' },
   { initials: 'SZ', tone: 'tile-lime', name: 'Sonny Zhang', role: 'CTO · INFRA', url: 'https://www.linkedin.com/in/fumingzhang1/' },
-  { initials: 'SG', tone: 'tile-amber', name: 'Steve Gorson', role: 'CMO', url: 'https://www.linkedin.com/in/stevegorson/' },
+  { initials: 'SG', tone: 'tile-amber', name: 'Steve Gorson', role: 'GTM', url: 'https://www.linkedin.com/in/stevegorson/' },
 ]
 
 function TeamGrid() {
