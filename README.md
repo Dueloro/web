@@ -36,6 +36,6 @@ optional customer-discovery survey. Do not point the form at browser storage.
 
 ## Current product position
 
-Money Match is chess-only and points-based. Deposits, withdrawals, and
-real-money contests are not enabled. The waitlist is for future launch updates,
-not a guarantee of access or eligibility.
+The current Money Match experience is a product demo. Deposits, withdrawals,
+and real-money contests are not enabled. The waitlist is for future launch
+updates, not a guarantee of access or eligibility.

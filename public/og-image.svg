@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630" role="img" aria-label="Dueloro — Competitive software, verified">
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630" role="img" aria-label="Dueloro — Software for skill-based competition">
   <rect width="1200" height="630" fill="#0c0c0c"/>
   <rect x="0" y="0" width="1200" height="630" fill="none" stroke="#262626" stroke-width="2"/>
   <!-- brand mark -->
@@ -10,8 +10,6 @@
   <text x="94" y="330" font-family="Inter, Arial, sans-serif" font-size="88" font-weight="800" letter-spacing="-2" fill="#f2f2ef">Competition deserves</text>
   <text x="94" y="425" font-family="Inter, Arial, sans-serif" font-size="88" font-weight="800" letter-spacing="-2" fill="#f2f2ef">better <tspan fill="#c9f227">software.</tspan></text>
   <g font-family="'JetBrains Mono', monospace" font-size="24" font-weight="700" letter-spacing="3" fill="#6d6d66">
-    <text x="98" y="540">COMPETITIVE SOFTWARE</text>
-    <text x="475" y="540" fill="#c9f227">·</text>
-    <text x="510" y="540">VERIFIED RESULTS</text>
+    <text x="98" y="540">SOFTWARE FOR SKILL-BASED COMPETITION</text>
   </g>
 </svg>
