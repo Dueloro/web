@@ -609,45 +609,194 @@ select {
   min-height: 100vh;
 }
 .team-intro {
-  padding: 60px 0 38px;
-  max-width: 680px;
+  padding: 52px 0 24px;
+  max-width: 540px;
 }
 .team-intro .eyebrow {
-  margin-bottom: 14px;
+  margin-bottom: 10px;
 }
 .team-intro > p {
   margin: 0;
   color: var(--muted);
-  font-size: clamp(18px, 2.2vw, 25px);
-  line-height: 1.45;
+  font-size: clamp(16px, 1.7vw, 20px);
+  line-height: 1.4;
   letter-spacing: -0.02em;
 }
-.team-gallery {
-  display: grid;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
-  gap: 9px;
-  padding: 0 0 130px;
+.team-board {
+  position: relative;
+  height: 850px;
+  margin: 0 0 110px;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  background:
+    linear-gradient(rgba(201, 242, 39, 0.028) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(201, 242, 39, 0.028) 1px, transparent 1px),
+    radial-gradient(circle at 50% 45%, rgba(201, 242, 39, 0.06), transparent 45%),
+    #0e0f0d;
+  background-size: 32px 32px, 32px 32px, auto, auto;
+}
+.team-board::after {
+  content: "";
+  position: absolute;
+  inset: 16px;
+  pointer-events: none;
+  border: 1px solid rgba(255, 255, 255, 0.025);
+}
+.board-connections {
+  position: absolute;
+  z-index: 1;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  transition: opacity 0.35s ease;
+}
+.board-connections path {
+  fill: none;
+  stroke: rgba(201, 242, 39, 0.24);
+  stroke-width: 1.25;
+  stroke-dasharray: 4 7;
+  vector-effect: non-scaling-stroke;
+}
+.board-connections .board-crosslink {
+  stroke: rgba(242, 242, 239, 0.1);
+  stroke-dasharray: 2 11;
+}
+.board-connections circle {
+  fill: var(--bg);
+  stroke: var(--lime);
+  stroke-width: 2;
+  vector-effect: non-scaling-stroke;
+}
+.board-note {
+  position: absolute;
+  z-index: 2;
+  color: rgba(201, 242, 39, 0.5);
+  font: 500 8px var(--mono);
+  letter-spacing: 0.13em;
+  pointer-events: none;
+}
+.note-alpha {
+  left: 22px;
+  top: 18px;
+}
+.note-beta {
+  right: 24px;
+  top: 22px;
+}
+.note-gamma {
+  right: 24px;
+  bottom: 18px;
 }
 .team-card {
+  position: absolute;
+  z-index: 3;
   display: block;
   min-width: 0;
   transition:
     opacity 0.35s ease,
     filter 0.35s ease,
-    transform 0.35s ease;
+    transform 0.35s ease,
+    z-index 0s;
 }
-.team-gallery:has(.team-card:hover) .team-card:not(:hover),
-.team-gallery:has(.team-card:focus-visible) .team-card:not(:focus-visible) {
-  opacity: 0.32;
-  filter: blur(2px) grayscale(1);
+.team-board:has(.team-card:hover) .team-card:not(:hover),
+.team-board:has(.team-card:focus-visible) .team-card:not(:focus-visible) {
+  opacity: 0.2;
+  filter: blur(3px) grayscale(1);
   transform: scale(0.985);
+}
+.team-board:has(.team-card:hover) .board-connections,
+.team-board:has(.team-card:focus-visible) .board-connections {
+  opacity: 0.72;
+}
+.team-board:has(.team-card:hover) .board-connections path,
+.team-board:has(.team-card:focus-visible) .board-connections path {
+  stroke: rgba(242, 242, 239, 0.07);
+}
+.team-board:has(.board-maz:hover) .board-connections path:nth-of-type(1),
+.team-board:has(.board-maz:hover) .board-connections path:nth-of-type(3),
+.team-board:has(.board-shrey:hover) .board-connections path:nth-of-type(1),
+.team-board:has(.board-shrey:hover) .board-connections path:nth-of-type(2),
+.team-board:has(.board-shrey:hover) .board-connections path:nth-of-type(6),
+.team-board:has(.board-steve:hover) .board-connections path:nth-of-type(2),
+.team-board:has(.board-steve:hover) .board-connections path:nth-of-type(5),
+.team-board:has(.board-sonny:hover) .board-connections path:nth-of-type(3),
+.team-board:has(.board-sonny:hover) .board-connections path:nth-of-type(4),
+.team-board:has(.board-thomas:hover) .board-connections path:nth-of-type(4),
+.team-board:has(.board-thomas:hover) .board-connections path:nth-of-type(5),
+.team-board:has(.board-thomas:hover) .board-connections path:nth-of-type(6),
+.team-board:has(.board-maz:focus-visible) .board-connections path:nth-of-type(1),
+.team-board:has(.board-maz:focus-visible) .board-connections path:nth-of-type(3),
+.team-board:has(.board-shrey:focus-visible) .board-connections path:nth-of-type(1),
+.team-board:has(.board-shrey:focus-visible) .board-connections path:nth-of-type(2),
+.team-board:has(.board-shrey:focus-visible) .board-connections path:nth-of-type(6),
+.team-board:has(.board-steve:focus-visible) .board-connections path:nth-of-type(2),
+.team-board:has(.board-steve:focus-visible) .board-connections path:nth-of-type(5),
+.team-board:has(.board-sonny:focus-visible) .board-connections path:nth-of-type(3),
+.team-board:has(.board-sonny:focus-visible) .board-connections path:nth-of-type(4),
+.team-board:has(.board-thomas:focus-visible) .board-connections path:nth-of-type(4),
+.team-board:has(.board-thomas:focus-visible) .board-connections path:nth-of-type(5),
+.team-board:has(.board-thomas:focus-visible) .board-connections path:nth-of-type(6) {
+  stroke: rgba(201, 242, 39, 0.9);
+  stroke-dashoffset: -22;
+  animation: signal-path 1.4s linear infinite;
+}
+.board-maz {
+  width: 27%;
+  left: 3.5%;
+  top: 95px;
+  transform: rotate(-1.4deg);
+}
+.board-shrey {
+  width: 31%;
+  left: 34.5%;
+  top: 38px;
+  transform: rotate(0.8deg);
+}
+.board-steve {
+  width: 23%;
+  right: 3.5%;
+  top: 155px;
+  transform: rotate(1.8deg);
+}
+.board-sonny {
+  width: 25%;
+  left: 15.5%;
+  bottom: 35px;
+  transform: rotate(1.2deg);
+}
+.board-thomas {
+  width: 28%;
+  right: 28%;
+  bottom: 22px;
+  transform: rotate(-1deg);
+}
+.team-card:hover,
+.team-card:focus-visible {
+  z-index: 10;
+  transform: rotate(0) scale(1.025);
 }
 .team-portrait {
   position: relative;
   overflow: hidden;
-  aspect-ratio: 3 / 4;
   border: 1px solid var(--line2);
   background: #111;
+  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.35);
+}
+.board-maz .team-portrait {
+  aspect-ratio: 4 / 5;
+}
+.board-shrey .team-portrait {
+  aspect-ratio: 16 / 10;
+}
+.board-steve .team-portrait {
+  aspect-ratio: 3 / 4;
+}
+.board-sonny .team-portrait {
+  aspect-ratio: 16 / 9;
+}
+.board-thomas .team-portrait {
+  aspect-ratio: 1 / 1;
 }
 .portrait-placeholder,
 .profile-placeholder {
@@ -673,6 +822,19 @@ select {
   background: #252720;
   border: 1px solid rgba(201, 242, 39, 0.12);
 }
+.board-shrey .portrait-placeholder,
+.board-thomas .portrait-placeholder {
+  background:
+    linear-gradient(34deg, transparent 49.7%, rgba(201, 242, 39, 0.13) 50%, transparent 50.3%),
+    radial-gradient(circle at 62% 35%, #2b2d25 0 12%, transparent 12.3%),
+    linear-gradient(125deg, #191b17, #292b24 46%, #10110f);
+}
+.board-sonny .portrait-placeholder {
+  background:
+    linear-gradient(155deg, transparent 49.7%, rgba(201, 242, 39, 0.13) 50%, transparent 50.3%),
+    radial-gradient(circle at 38% 41%, #292b24 0 13%, transparent 13.3%),
+    linear-gradient(180deg, #22241e, #0f100e);
+}
 .portrait-placeholder b,
 .profile-placeholder b {
   position: relative;
@@ -692,27 +854,20 @@ select {
   font: 500 8px var(--mono);
   letter-spacing: 0.12em;
 }
-.team-portrait > span {
-  position: absolute;
-  z-index: 2;
-  top: 14px;
-  right: 14px;
-  color: var(--lime);
-  font: 500 9px var(--mono);
-}
 .team-card-copy {
-  padding: 17px 4px 0;
+  position: relative;
+  padding: 12px 3px 0;
 }
 .team-card-copy > p {
-  margin: 0 0 6px;
+  margin: 0 0 3px;
   color: var(--faint);
-  font: 500 9px var(--mono);
+  font: 500 8px var(--mono);
   letter-spacing: 0.11em;
   text-transform: uppercase;
 }
 .team-card-copy h2 {
   margin: 0;
-  font-size: clamp(16px, 1.45vw, 20px);
+  font-size: clamp(18px, 2vw, 25px);
   line-height: 1.15;
   letter-spacing: -0.025em;
 }
@@ -729,27 +884,47 @@ select {
   display: block;
 }
 .team-reveal {
+  position: absolute;
+  top: calc(100% + 9px);
+  left: 0;
+  width: min(310px, 125%);
   max-height: 0;
   overflow: hidden;
   opacity: 0;
+  padding: 0 12px;
+  background: rgba(12, 12, 12, 0.94);
+  backdrop-filter: blur(12px);
+  border-left: 1px solid var(--lime);
   transition:
     max-height 0.4s ease,
-    opacity 0.35s ease;
+    opacity 0.35s ease,
+    padding 0.35s ease;
 }
 .team-reveal p {
-  margin: 13px 0 0;
+  margin: 0;
   color: var(--muted);
   font-size: 12px;
   line-height: 1.5;
+}
+.board-sonny .team-reveal,
+.board-thomas .team-reveal {
+  top: auto;
+  bottom: calc(100% + 9px);
 }
 .team-card:hover .team-reveal,
 .team-card:focus-visible .team-reveal {
   max-height: 240px;
   opacity: 1;
+  padding-block: 12px;
 }
 .team-card:hover .team-portrait,
 .team-card:focus-visible .team-portrait {
   border-color: rgba(201, 242, 39, 0.55);
+}
+@keyframes signal-path {
+  to {
+    stroke-dashoffset: -44;
+  }
 }
 .profile-page {
   padding-top: 130px;
@@ -950,8 +1125,49 @@ select {
   .footer-grid > div:last-child {
     grid-column: 2;
   }
-  .team-gallery {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+  .team-board {
+    height: auto;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-items: start;
+    gap: 54px 16px;
+    padding: 70px 24px 42px;
+  }
+  .board-connections {
+    opacity: 0.45;
+  }
+  .team-card,
+  .board-maz,
+  .board-shrey,
+  .board-steve,
+  .board-sonny,
+  .board-thomas {
+    position: relative;
+    inset: auto;
+    width: auto;
+  }
+  .board-maz {
+    transform: rotate(-1deg);
+  }
+  .board-shrey {
+    margin-top: 65px;
+    transform: rotate(0.8deg);
+  }
+  .board-steve {
+    transform: rotate(1.2deg);
+  }
+  .board-sonny {
+    margin-top: 80px;
+    transform: rotate(-0.7deg);
+  }
+  .board-thomas {
+    width: 62%;
+    grid-column: 1 / -1;
+    justify-self: center;
+    transform: rotate(0.6deg);
+  }
+  .team-reveal {
+    width: 100%;
   }
   .profile-hero {
     grid-template-columns: 1fr 0.7fr;
@@ -1042,12 +1258,36 @@ select {
     padding-top: 58px;
   }
   .team-intro {
-    padding: 55px 0 40px;
+    padding: 40px 0 24px;
   }
-  .team-gallery {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 34px 8px;
-    padding-bottom: 90px;
+  .team-board {
+    gap: 45px 10px;
+    margin-bottom: 80px;
+    padding: 62px 12px 34px;
+  }
+  .note-beta {
+    display: none;
+  }
+  .board-shrey {
+    margin-top: 48px;
+  }
+  .board-sonny {
+    margin-top: 55px;
+  }
+  .board-thomas {
+    width: 72%;
+  }
+  .team-card-copy h2 {
+    font-size: 18px;
+  }
+  .team-reveal {
+    position: static;
+    width: 100%;
+    margin-top: 0;
+  }
+  .team-card:hover .team-reveal,
+  .team-card:focus-visible .team-reveal {
+    margin-top: 9px;
   }
   .team-reveal p {
     font-size: 11px;
@@ -1125,5 +1365,8 @@ select {
     opacity: 1;
     transform: none;
     transition: none;
+  }
+  .board-connections path {
+    animation: none !important;
   }
 }

@@ -594,7 +594,7 @@ const people: Person[] = [
     initials: "MW",
     linkedin: "https://www.linkedin.com/in/elliot-wood-985741269/",
     short:
-      "Maz turns the company thesis into product direction, partnerships, and an operating plan built around trust. He keeps the product and company moving toward the same standard.",
+      "Keeps the product, partnerships, and company moving in the same direction. Usually thinking three steps ahead.",
     story: [
       "Dueloro began with a straightforward observation: competitive players already put enormous value on skill, but the software around that competition rarely earns the same level of trust.",
       "Maz leads the company across strategy, operations, and product direction. His work is focused on turning a promising category into something durable—clear rules, aligned incentives, and partnerships that make verified competition possible.",
@@ -611,7 +611,7 @@ const people: Person[] = [
     initials: "SM",
     linkedin: "https://www.linkedin.com/in/shreyanshmisra/",
     short:
-      "Shrey builds the systems that connect player identity, fair matching, result verification, and settlement. He makes trust visible in the product itself.",
+      "Builds the product and the systems behind it. Deeply suspicious of anything that cannot be verified.",
     story: [
       "The hardest part of competitive software is not drawing the match screen. It is making every state change legible, defensible, and reliable when the result matters.",
       "Shrey leads product engineering at Dueloro. He works across the full system—from the player experience to the infrastructure that connects identity, matchmaking, game data, and settlement.",
@@ -628,7 +628,7 @@ const people: Person[] = [
     initials: "SG",
     linkedin: "https://www.linkedin.com/in/stevegorson/",
     short:
-      "Steve shapes how Dueloro explains a new category to players, partners, and the market. He turns the product thesis into a story people remember.",
+      "Turns difficult ideas into stories people remember. Keeps us from sounding like a database manual.",
   },
   {
     slug: "sonny-zhang",
@@ -639,7 +639,7 @@ const people: Person[] = [
     initials: "SZ",
     linkedin: "https://www.linkedin.com/in/fumingzhang1/",
     short:
-      "Sonny advises the engineering team on resilient infrastructure and the systems behind verified competition. He helps pressure-test the technical foundation.",
+      "Pressure-tests the technical foundation. Finds infrastructure problems before they become exciting.",
   },
   {
     slug: "thomas-veasy",
@@ -650,23 +650,26 @@ const people: Person[] = [
     initials: "TV",
     linkedin: "https://www.linkedin.com/in/thomasveasy/",
     short:
-      "Thomas advises Dueloro on operations, execution, and the details required to turn a product into a company. He brings an operator’s eye to the work behind the product.",
+      "Brings an operator’s eye to the company. Good at turning ambitious plans into executable ones.",
   },
 ];
 
-function TeamCard({ person, index }: { person: Person; index: number }) {
+function TeamCard({ person }: { person: Person }) {
+  const boardClass = `board-${person.firstName.toLowerCase()}`;
   const content = (
     <>
       <div className="team-portrait">
-        <div className="portrait-placeholder" aria-label={`${person.name} portrait placeholder`}>
+        <div
+          className="portrait-placeholder"
+          aria-label={`${person.name} portrait placeholder`}
+        >
           <b>{person.initials}</b>
-          <small>PORTRAIT FORTHCOMING</small>
+          <small>PHOTO INCOMING</small>
         </div>
-        <span>0{index + 1}</span>
       </div>
       <div className="team-card-copy">
         <p>{person.galleryRole}</p>
-        <h2 className="team-name">{person.name}</h2>
+        <h2 className="team-name">{person.firstName}</h2>
         {person.story && (
           <h2 className="team-story-title">Read {person.firstName}’s story →</h2>
         )}
@@ -677,11 +680,14 @@ function TeamCard({ person, index }: { person: Person; index: number }) {
     </>
   );
   return person.story ? (
-    <Link className="team-card has-story" to={`/team/${person.slug}`}>
+    <Link
+      className={`team-card has-story ${boardClass}`}
+      to={`/team/${person.slug}`}
+    >
       {content}
     </Link>
   ) : (
-    <article className="team-card" tabIndex={0}>
+    <article className={`team-card ${boardClass}`} tabIndex={0}>
       {content}
     </article>
   );
@@ -693,16 +699,33 @@ function Team() {
       <Reveal>
         <header className="team-intro">
           <Eye>OUR TEAM</Eye>
-          <p>
-            We are a small group of builders and operators working on the trust
-            layer for skill-based competition. Different disciplines, one
-            standard: the result should hold up under pressure.
-          </p>
+          <p>Five people building a better way to compete.</p>
         </header>
       </Reveal>
-      <div className="team-gallery">
-        {people.map((person, index) => (
-          <TeamCard key={person.slug} person={person} index={index} />
+      <div className="team-board">
+        <svg
+          className="board-connections"
+          viewBox="0 0 1000 820"
+          preserveAspectRatio="none"
+          aria-hidden="true"
+        >
+          <path d="M168 292 C300 210 365 195 498 175" />
+          <path d="M498 175 C650 175 735 242 858 314" />
+          <path d="M168 292 C205 470 220 560 294 682" />
+          <path d="M294 682 C420 620 500 615 600 665" />
+          <path d="M600 665 C720 560 790 445 858 314" />
+          <path className="board-crosslink" d="M498 175 C515 360 545 510 600 665" />
+          <circle cx="168" cy="292" r="5" />
+          <circle cx="498" cy="175" r="5" />
+          <circle cx="858" cy="314" r="5" />
+          <circle cx="294" cy="682" r="5" />
+          <circle cx="600" cy="665" r="5" />
+        </svg>
+        <span className="board-note note-alpha">SIGNAL MAP // TEAM</span>
+        <span className="board-note note-beta">FIVE SPECIALTIES · ONE SYSTEM</span>
+        <span className="board-note note-gamma">STATUS: BUILDING</span>
+        {people.map((person) => (
+          <TeamCard key={person.slug} person={person} />
         ))}
       </div>
     </div>
