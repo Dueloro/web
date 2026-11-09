@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630" role="img" aria-label="Money Match — Put your skill on the line">
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630" role="img" aria-label="Dueloro — Competitive software, verified">
   <rect width="1200" height="630" fill="#0c0c0c"/>
   <rect x="0" y="0" width="1200" height="630" fill="none" stroke="#262626" stroke-width="2"/>
   <!-- brand mark -->
@@ -6,14 +6,12 @@
     <rect width="96" height="96" fill="#c9f227"/>
     <path d="M48 26l26 44H22z" fill="#0c0c0c"/>
   </g>
-  <text x="220" y="196" font-family="Inter, Arial, sans-serif" font-size="34" font-weight="700" letter-spacing="2" fill="#9c9c94">MONEY MATCH · BY DUELORO</text>
-  <text x="94" y="330" font-family="Inter, Arial, sans-serif" font-size="96" font-weight="800" letter-spacing="-2" fill="#f2f2ef">Put your <tspan fill="#c9f227">skill</tspan> on the line.</text>
-  <text x="98" y="410" font-family="Inter, Arial, sans-serif" font-size="34" font-weight="500" fill="#9c9c94">Real stakes on your own matches. We hold the pot. Winner takes it.</text>
+  <text x="220" y="196" font-family="Inter, Arial, sans-serif" font-size="38" font-weight="800" letter-spacing="4" fill="#f2f2ef">DUELORO</text>
+  <text x="94" y="330" font-family="Inter, Arial, sans-serif" font-size="88" font-weight="800" letter-spacing="-2" fill="#f2f2ef">Competition deserves</text>
+  <text x="94" y="425" font-family="Inter, Arial, sans-serif" font-size="88" font-weight="800" letter-spacing="-2" fill="#f2f2ef">better <tspan fill="#c9f227">software.</tspan></text>
   <g font-family="'JetBrains Mono', monospace" font-size="24" font-weight="700" letter-spacing="3" fill="#6d6d66">
-    <text x="98" y="520">SKILL-BASED</text>
-    <text x="380" y="520" fill="#c9f227">·</text>
-    <text x="410" y="520">PEER-TO-PEER</text>
-    <text x="720" y="520" fill="#c9f227">·</text>
-    <text x="750" y="520">ESCROWED</text>
+    <text x="98" y="540">COMPETITIVE SOFTWARE</text>
+    <text x="475" y="540" fill="#c9f227">·</text>
+    <text x="510" y="540">VERIFIED RESULTS</text>
   </g>
 </svg>
