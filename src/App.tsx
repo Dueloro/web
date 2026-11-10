@@ -68,7 +68,7 @@ function Nav() {
     ["/products/money-match", "PRODUCT"],
     ["/about", "COMPANY"],
     ["/team", "TEAM"],
-    ["/help", "HELP"],
+    ["/contact", "CONTACT"],
   ];
   return (
     <header className="site-header">
@@ -134,8 +134,8 @@ function Hero() {
           <h1>Competition deserves better software.</h1>
           <p className="lead">
             Dueloro builds trusted software for skill-based competitions. Our
-            first product, Money Match, is being built to let you wager on the
-            skill-based video games you already play.
+            first product, Money Match, lets you wager on the skill-based video
+            games you already play.
           </p>
           <div className="actions">
             <a className="btn primary" href={APP_URL}>
@@ -146,8 +146,7 @@ function Hero() {
             </Link>
           </div>
           <p className="note">
-            SKILL-BASED MATCHMAKING · API RESULT VERIFICATION · AUTOMATED
-            PAYOUTS
+            SKILL-BASED MATCHMAKING · API RESULT VERIFICATION · INSTANT PAYOUTS
           </p>
         </Reveal>
       </div>
@@ -156,10 +155,22 @@ function Hero() {
 }
 
 const principles = [
-  ["IDENTITY", "Connect the account you actually compete with."],
-  ["MATCHING", "Competition structured around comparable skill."],
-  ["VERIFICATION", "Results come from the game platform—not screenshots."],
-  ["CLARITY", "Rules, state, and outcomes remain visible."],
+  [
+    "IDENTITY",
+    "Every match begins with real, eligible players. Connect your account, verify your age and location, then compete under one identity.",
+  ],
+  [
+    "MATCHING",
+    "Compete against players in a similar skill bracket. Better matchmaking creates fairer contests and more meaningful wins.",
+  ],
+  [
+    "VERIFICATION",
+    "Results come directly from supported game APIs. No screenshots, gameplay streams, or manual review.",
+  ],
+  [
+    "PAYOUTS",
+    "Winnings move through familiar payment providers with simple, fast settlement.",
+  ],
 ];
 
 function Product() {
@@ -168,7 +179,7 @@ function Product() {
       <section className="section">
         <div className="container split">
           <Reveal>
-            <Eye>01 · FLAGSHIP PRODUCT</Eye>
+            <Eye>01 · PRODUCT LAUNCH</Eye>
             <h2>Money Match</h2>
             <p className="lead">
               Connect to your video game of choice, match with players near
@@ -227,30 +238,12 @@ function Product() {
             {principles.map(([title, copy], i) => (
               <Reveal key={title} delay={i * 50}>
                 <article>
-                  <span>0{i + 1}</span>
                   <h3>{title}</h3>
                   <p>{copy}</p>
                 </article>
               </Reveal>
             ))}
           </div>
-        </div>
-      </section>
-      <section className="section">
-        <div className="container split">
-          <Reveal>
-            <Eye>03 · MEET THE FOUNDERS</Eye>
-            <h2>Small team. High ownership.</h2>
-          </Reveal>
-          <Reveal delay={80}>
-            <p className="lead">
-              A focused team working across product, engineering, operations,
-              and the trust problems behind competitive software.
-            </p>
-            <Link className="text-link" to="/team">
-              MEET THE FOUNDERS →
-            </Link>
-          </Reveal>
         </div>
       </section>
     </>
@@ -441,6 +434,7 @@ function Waitlist() {
                     FIRST NAME <i>OPTIONAL</i>
                   </span>
                   <input
+                    type="text"
                     autoComplete="given-name"
                     value={name}
                     onChange={(e) => setName(e.target.value)}
@@ -516,7 +510,7 @@ function Basic({
   children: ReactNode;
 }) {
   return (
-    <div className="page container">
+    <div className="page compact-page container">
       <Intro eye={eye} title={title}>
         {children}
       </Intro>
@@ -524,48 +518,201 @@ function Basic({
   );
 }
 
-function MoneyMatch() {
-  const steps = [
-    ["01 · CONNECT", "Connect a supported game account."],
-    ["02 · MATCH", "Find a player near your skill level."],
-    ["03 · COMPETE", "Play the game you already know."],
-    ["04 · VERIFY", "Settle from the platform result."],
-  ];
+function Contact() {
   return (
-    <div className="page container">
+    <div className="page compact-page contact-page container">
+      <Intro eye="CONTACT" title="Talk to the right person.">
+        <p>
+          Questions, ideas, product help, and partnership conversations are all
+          welcome. Choose the address that best fits what you need.
+        </p>
+      </Intro>
+      <div className="contact-grid">
+        <a href="mailto:hello@dueloro.com">
+          <span>GENERAL</span>
+          <h2>hello@dueloro.com</h2>
+          <p>Company questions, partnerships, press, and careers.</p>
+          <b>WRITE TO US ↗</b>
+        </a>
+        <a href="mailto:support@dueloro.com">
+          <span>PRODUCT SUPPORT</span>
+          <h2>support@dueloro.com</h2>
+          <p>Money Match, account questions, and security reports.</p>
+          <b>GET SUPPORT ↗</b>
+        </a>
+      </div>
+      <section className="quick-answers">
+        <Eye>QUICK ANSWERS</Eye>
+        <div>
+          <article>
+            <h2>When will real-money contests be available?</h2>
+            <p>
+              Timing will depend on eligibility, location, final product rules,
+              and regulatory readiness. Join the waitlist for launch updates.
+            </p>
+          </article>
+          <article>
+            <h2>How do I report a product or account issue?</h2>
+            <p>
+              Email support@dueloro.com with the account email and a concise
+              description of what happened.
+            </p>
+          </article>
+        </div>
+      </section>
+    </div>
+  );
+}
+
+function CopyField({ label, value }: { label: string; value: string }) {
+  const [copied, setCopied] = useState(false);
+  async function copy() {
+    try {
+      await navigator.clipboard.writeText(value);
+      setCopied(true);
+      window.setTimeout(() => setCopied(false), 1600);
+    } catch {
+      setCopied(false);
+    }
+  }
+  return (
+    <div className="copy-field">
+      <div>
+        <span>{label}</span>
+        <code>{value}</code>
+      </div>
+      <button type="button" onClick={copy} aria-label={`Copy ${label}`}>
+        {copied ? "COPIED" : "COPY"}
+      </button>
+    </div>
+  );
+}
+
+const careerTracks = [
+  {
+    id: "engineering",
+    name: "Engineering",
+    summary: "Product engineering, infrastructure, and data systems.",
+    subject: "Engineering application | Your name",
+  },
+  {
+    id: "strategy",
+    name: "Strategy and Insights",
+    summary: "Market research, partnerships, operations, and company strategy.",
+    subject: "Strategy and Insights application | Your name",
+  },
+  {
+    id: "general",
+    name: "General Application",
+    summary: "For contributions that do not fit neatly into one track.",
+    subject: "General application | Your name",
+  },
+];
+
+function Careers() {
+  const [open, setOpen] = useState<string | null>("engineering");
+  return (
+    <div className="page compact-page careers-page container">
+      <Intro eye="CAREERS" title="Join the team.">
+        <p>
+          If you are excited about the future of skill-based competition and
+          care deeply about fintech, AI, or video games, learn more about our{" "}
+          <Link className="text-link" to="/team">
+            team
+          </Link>{" "}
+          and explore a track below.
+        </p>
+      </Intro>
+      <div className="career-tracks">
+        {careerTracks.map((track) => {
+          const expanded = open === track.id;
+          return (
+            <article
+              className={`career-track${expanded ? " open" : ""}`}
+              key={track.id}
+            >
+              <button
+                type="button"
+                className="career-trigger"
+                aria-expanded={expanded}
+                aria-controls={`${track.id}-application`}
+                onClick={() => setOpen(expanded ? null : track.id)}
+              >
+                <span>
+                  <small>REMOTE</small>
+                  <strong>{track.name}</strong>
+                  <i>{track.summary}</i>
+                </span>
+                <b aria-hidden="true">{expanded ? "−" : "+"}</b>
+              </button>
+              {expanded && (
+                <div className="career-panel" id={`${track.id}-application`}>
+                  <p>
+                    We are a very small team, and we are glad you want to join
+                    us. Send your resume and a few thoughtful words about why
+                    Dueloro and this track interest you.
+                  </p>
+                  <div
+                    className="email-sheet"
+                    aria-label={`${track.name} application details`}
+                  >
+                    <CopyField label="EMAIL" value="hello@dueloro.com" />
+                    <CopyField label="SUBJECT" value={track.subject} />
+                  </div>
+                </div>
+              )}
+            </article>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+function Blog() {
+  return (
+    <div className="page compact-page blog-page container">
+      <Intro eye="COMPANY" title="Blog.">
+        <p>
+          Notes on products, skill-based competition, trust, and what we learn
+          while building Dueloro.
+        </p>
+      </Intro>
+      <div className="blog-coming">
+        <span>COMING SOON</span>
+        <p>Our first field notes are in progress.</p>
+      </div>
+    </div>
+  );
+}
+
+function MoneyMatch() {
+  return (
+    <div className="page product-page container">
       <Intro
         eye="PRODUCT · MONEY MATCH"
         title="Skill contracts for the games you already play."
       >
         <p>
-          Money Match is being built to connect your game account, find a fair
-          contest, verify the result through an API, and settle the outcome
-          without screenshots or arguments.
+          Money Match is a platform for player-to-player skill contests in the
+          video games people already play. Connect your game account, find a
+          fair matchup, set the terms, and let verified game data settle the
+          result.
         </p>
         <div className="actions">
           <a className="btn primary" href={APP_URL}>
             PLAY MONEY MATCH ↗
           </a>
-          <a className="btn ghost" href={DECK_URL}>
+          <a
+            className="btn ghost"
+            href={DECK_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
             VIEW PITCH DECK
           </a>
         </div>
       </Intro>
-      <div className="cards">
-        {steps.map(([h, p]) => (
-          <article key={h}>
-            <h2>{h}</h2>
-            <p>{p}</p>
-          </article>
-        ))}
-      </div>
-      <div className="notice">
-        <b>CURRENT AVAILABILITY</b>
-        <p>
-          The current public experience is a product demo. Deposits,
-          withdrawals, and real-money contests are not enabled.
-        </p>
-      </div>
       <Waitlist />
     </div>
   );
@@ -802,7 +949,7 @@ function Legal({ type }: { type: "privacy" | "terms" | "regulatory" }) {
           ],
           [
             "Your choices",
-            "Unsubscribe from any email or contact privacy@dueloro.com to access or delete your information.",
+            "Unsubscribe from any email or contact hello@dueloro.com to access or delete your information.",
           ],
         ]
       : type === "terms"
@@ -819,7 +966,7 @@ function Legal({ type }: { type: "privacy" | "terms" | "regulatory" }) {
               "Product terms",
               "Money Match is governed by the terms presented inside that product.",
             ],
-            ["Contact", "Questions may be sent to legal@dueloro.com."],
+            ["Contact", "Questions may be sent to hello@dueloro.com."],
           ]
         : [
             [
@@ -842,7 +989,7 @@ function Legal({ type }: { type: "privacy" | "terms" | "regulatory" }) {
         ? "Website Terms"
         : "Current product availability";
   return (
-    <div className="page container legal">
+    <div className="page compact-page container legal">
       <Intro eye={type === "regulatory" ? "REGULATORY" : "LEGAL"} title={title}>
         <p>Plain-language information for the Dueloro website and waitlist.</p>
       </Intro>
@@ -853,7 +1000,7 @@ function Legal({ type }: { type: "privacy" | "terms" | "regulatory" }) {
             <p>{p}</p>
           </section>
         ))}
-        <p className="note">LAST UPDATED NOVEMBER 9, 2026</p>
+        <p className="note">LAST UPDATED NOVEMBER 10, 2026</p>
       </div>
     </div>
   );
@@ -882,8 +1029,10 @@ const meta: Record<string, [string, string]> = {
     "Meet Dueloro co-founder and CTO Shreyansh Misra.",
   ],
   "/careers": ["Careers — Dueloro", "Work at Dueloro."],
-  "/updates": ["Updates — Dueloro", "Company and product updates."],
-  "/help": ["Help — Dueloro", "Get help with Money Match."],
+  "/blog": ["Blog — Dueloro", "Notes and company updates from Dueloro."],
+  "/updates": ["Blog — Dueloro", "Notes and company updates from Dueloro."],
+  "/contact": ["Contact — Dueloro", "Contact Dueloro."],
+  "/help": ["Contact — Dueloro", "Contact Dueloro."],
   "/regulatory": ["Regulatory — Dueloro", "Current product availability."],
   "/privacy": ["Privacy — Dueloro", "Dueloro website privacy policy."],
   "/terms": ["Terms — Dueloro", "Dueloro website terms."],
@@ -898,25 +1047,26 @@ function Footer() {
           <div className="footer-brand">
             <Brand />
             <p>Trusted software for skill-based competition.</p>
-              <a href="mailto:support@dueloro.com">CONTACT ↗</a>
+            <a href="mailto:hello@dueloro.com">CONTACT ↗</a>
           </div>
           <div>
             <h2>PRODUCT</h2>
             <Link to="/products/money-match">Money Match</Link>
             <a href={APP_URL}>Play Money Match ↗</a>
-            <a href={DECK_URL}>Pitch deck ↗</a>
+            <a href={DECK_URL} target="_blank" rel="noopener noreferrer">
+              Pitch deck ↗
+            </a>
           </div>
           <div>
             <h2>COMPANY</h2>
             <Link to="/about">About</Link>
             <Link to="/team">Team</Link>
             <Link to="/careers">Careers</Link>
-            <Link to="/updates">Updates</Link>
+            <Link to="/blog">Blog</Link>
           </div>
           <div>
             <h2>HELP</h2>
-            <Link to="/help">Help & FAQ</Link>
-            <a href="mailto:support@dueloro.com">Support</a>
+            <Link to="/contact">Help & FAQ</Link>
             <Link to="/regulatory">Regulatory</Link>
             <Link to="/security">Security</Link>
           </div>
@@ -927,7 +1077,7 @@ function Footer() {
           <div>
             <Link to="/privacy">Privacy</Link>
             <Link to="/terms">Terms</Link>
-              <a href="/#real-money-waitlist">Real-money waitlist</a>
+            <a href="/#real-money-waitlist">Real-money waitlist</a>
           </div>
         </div>
       </div>
@@ -940,6 +1090,8 @@ export default function App() {
   useEffect(() => {
     scrollTo(0, 0);
     const m = meta[path] || ["Page not found — Dueloro", meta["/"][1]];
+    const canonicalPath =
+      path === "/help" ? "/contact" : path === "/updates" ? "/blog" : path;
     document.title = m[0];
     document
       .querySelector('meta[name="description"]')
@@ -948,7 +1100,8 @@ export default function App() {
       .querySelector('link[rel="canonical"]')
       ?.setAttribute(
         "href",
-        "https://dueloro.com" + (path === "/" ? "" : path),
+        "https://dueloro.com" +
+          (canonicalPath === "/" ? "" : canonicalPath),
       );
   }, [path]);
   let page: ReactNode;
@@ -982,52 +1135,23 @@ export default function App() {
       page = <TeamProfile person={people[1]} />;
       break;
     case "/careers":
-      page = (
-        <Basic eye="CAREERS" title="Do work that holds up under pressure.">
-          <p>
-            We are not listing open roles today. Exceptional builders can
-            introduce themselves at{" "}
-            <a className="text-link" href="mailto:careers@dueloro.com">
-              careers@dueloro.com
-            </a>
-            .
-          </p>
-        </Basic>
-      );
+      page = <Careers />;
       break;
+    case "/blog":
     case "/updates":
-      page = (
-        <Basic eye="UPDATES" title="What we are shipping and learning.">
-          <p>
-            Product notes and company announcements will live here. Until then,
-            the live product is the best view of our progress.
-          </p>
-          <a className="btn primary" href={APP_URL}>
-            PLAY MONEY MATCH ↗
-          </a>
-        </Basic>
-      );
+      page = <Blog />;
       break;
+    case "/contact":
     case "/help":
-      page = (
-        <Basic eye="HELP" title="Clear answers, from real people.">
-          <p>
-            For account, contest, or product help, contact{" "}
-            <a className="text-link" href="mailto:support@dueloro.com">
-              support@dueloro.com
-            </a>
-            .
-          </p>
-        </Basic>
-      );
+      page = <Contact />;
       break;
     case "/security":
       page = (
         <Basic eye="SECURITY" title="Report security issues responsibly.">
           <p>
             Send reports with reproduction steps and impact to{" "}
-            <a className="text-link" href="mailto:security@dueloro.com">
-              security@dueloro.com
+            <a className="text-link" href="mailto:support@dueloro.com">
+              support@dueloro.com
             </a>
             .
           </p>

@@ -394,29 +394,43 @@ a {
 }
 .principles {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  margin-top: 60px;
+  grid-template-columns: repeat(2, 1fr);
+  margin-top: 48px;
   border: 1px solid var(--line);
 }
 .principles > div + div {
   border-left: 1px solid var(--line);
 }
-.principles article {
-  padding: 28px;
-  min-height: 240px;
+.principles > div:nth-child(3) {
+  border-left: 0;
 }
-.principles article > span {
-  font: 500 11px var(--mono);
-  color: var(--lime);
+.principles > div:nth-child(n + 3) {
+  border-top: 1px solid var(--line);
+}
+.principles article {
+  padding: 30px 32px 34px;
+  min-height: 176px;
 }
 .principles h3 {
   font: 700 12px var(--mono);
   letter-spacing: 0.1em;
-  margin: 55px 0 14px;
+  margin: 0 0 22px;
+}
+.principles h3::before {
+  content: "";
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  margin-right: 10px;
+  background: var(--lime);
+  box-shadow: 0 0 14px rgba(201, 242, 39, 0.35);
 }
 .principles p {
+  max-width: 52ch;
+  margin: 0;
   color: var(--muted);
-  font-size: 14px;
+  font-size: 15px;
+  line-height: 1.65;
 }
 .waitlist {
   padding: 80px 0 130px;
@@ -447,7 +461,12 @@ a {
 .fields {
   display: grid;
   grid-template-columns: 1.2fr 0.8fr;
+  align-items: end;
   gap: 10px;
+}
+.fields > label {
+  display: grid;
+  grid-template-rows: 26px 48px;
 }
 .signup label > span {
   display: block;
@@ -569,6 +588,214 @@ select {
 }
 .page-lead p {
   margin: 0 0 22px;
+}
+.compact-page,
+.product-page {
+  padding-top: 92px;
+}
+.compact-page .intro,
+.product-page .intro {
+  padding: 56px 0 60px;
+}
+.compact-page .intro h1 {
+  max-width: 17ch;
+  margin-bottom: 20px;
+  font-size: clamp(42px, 5vw, 64px);
+  line-height: 1.02;
+}
+.product-page .intro h1 {
+  max-width: 23ch;
+  margin-bottom: 22px;
+  font-size: clamp(44px, 5.2vw, 66px);
+  line-height: 1.02;
+}
+.compact-page .page-lead,
+.product-page .page-lead {
+  max-width: 720px;
+  font-size: 17px;
+  line-height: 1.65;
+}
+.contact-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  border: 1px solid var(--line);
+  margin: 54px 0 86px;
+}
+.contact-grid > a {
+  position: relative;
+  min-height: 250px;
+  padding: 32px;
+  transition: background 0.25s ease;
+}
+.contact-grid > a + a {
+  border-left: 1px solid var(--line);
+}
+.contact-grid > a:hover {
+  background: rgba(201, 242, 39, 0.035);
+}
+.contact-grid span,
+.contact-grid b,
+.blog-coming span {
+  color: var(--faint);
+  font: 600 10px var(--mono);
+  letter-spacing: 0.11em;
+}
+.contact-grid h2 {
+  margin: 54px 0 12px;
+  font-size: clamp(20px, 2.5vw, 30px);
+  letter-spacing: -0.03em;
+}
+.contact-grid p {
+  max-width: 38ch;
+  color: var(--muted);
+  font-size: 14px;
+}
+.contact-grid b {
+  position: absolute;
+  bottom: 28px;
+  color: var(--lime);
+}
+.quick-answers {
+  padding: 0 0 110px;
+}
+.quick-answers > div {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 9%;
+  margin-top: 34px;
+}
+.quick-answers article {
+  border-top: 1px solid var(--line);
+  padding-top: 22px;
+}
+.quick-answers h2 {
+  margin: 0 0 14px;
+  font-size: 19px;
+  line-height: 1.3;
+}
+.quick-answers p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 14px;
+}
+.career-tracks {
+  border-top: 1px solid var(--line);
+  margin: 54px 0 120px;
+}
+.career-track {
+  border-bottom: 1px solid var(--line);
+}
+.career-track.open {
+  background: linear-gradient(90deg, rgba(201, 242, 39, 0.04), transparent 54%);
+}
+.career-trigger {
+  width: 100%;
+  border: 0;
+  padding: 27px 4px;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: 28px;
+  background: transparent;
+  color: var(--text);
+  text-align: left;
+  cursor: pointer;
+}
+.career-trigger > span {
+  display: grid;
+  grid-template-columns: 90px minmax(190px, 0.75fr) 1fr;
+  align-items: center;
+  gap: 22px;
+}
+.career-trigger small {
+  color: var(--lime);
+  font: 600 9px var(--mono);
+  letter-spacing: 0.12em;
+}
+.career-trigger strong {
+  font-size: 19px;
+}
+.career-trigger i {
+  color: var(--muted);
+  font-size: 14px;
+  font-style: normal;
+}
+.career-trigger > b {
+  color: var(--lime);
+  font: 400 24px var(--mono);
+}
+.career-panel {
+  max-width: 780px;
+  padding: 2px 4px 34px 116px;
+}
+.career-panel > p {
+  margin: 0 0 24px;
+  color: var(--muted);
+}
+.email-sheet {
+  border: 1px solid var(--line2);
+  background: rgba(8, 8, 8, 0.55);
+}
+.copy-field {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: stretch;
+}
+.copy-field + .copy-field {
+  border-top: 1px solid var(--line);
+}
+.copy-field > div {
+  min-width: 0;
+  padding: 15px 17px;
+  display: grid;
+  grid-template-columns: 68px 1fr;
+  align-items: center;
+  gap: 12px;
+}
+.copy-field span {
+  color: var(--faint);
+  font: 600 9px var(--mono);
+  letter-spacing: 0.11em;
+}
+.copy-field code {
+  overflow: hidden;
+  color: var(--text);
+  font: 500 12px var(--mono);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.copy-field button {
+  width: 82px;
+  border: 0;
+  border-left: 1px solid var(--line);
+  background: transparent;
+  color: var(--lime);
+  font: 600 9px var(--mono);
+  letter-spacing: 0.1em;
+  cursor: pointer;
+}
+.copy-field button:hover {
+  background: rgba(201, 242, 39, 0.06);
+}
+.blog-coming {
+  min-height: 250px;
+  margin: 54px 0 120px;
+  border: 1px solid var(--line);
+  display: grid;
+  place-content: center;
+  gap: 12px;
+  text-align: center;
+  background:
+    linear-gradient(rgba(201, 242, 39, 0.025) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(201, 242, 39, 0.025) 1px, transparent 1px);
+  background-size: 28px 28px;
+}
+.blog-coming span {
+  color: var(--lime);
+}
+.blog-coming p {
+  margin: 0;
+  color: var(--muted);
 }
 .cards {
   display: grid;
@@ -1098,15 +1325,6 @@ select {
   .split {
     gap: 60px;
   }
-  .principles {
-    grid-template-columns: 1fr 1fr;
-  }
-  .principles > div:nth-child(3) {
-    border-left: 0;
-  }
-  .principles > div:nth-child(n + 3) {
-    border-top: 1px solid var(--line);
-  }
   .waitlist-card {
     gap: 35px;
   }
@@ -1176,6 +1394,12 @@ select {
   .profile-story {
     gap: 55px;
   }
+  .career-trigger > span {
+    grid-template-columns: 75px minmax(170px, 0.8fr) 1fr;
+  }
+  .career-panel {
+    padding-left: 101px;
+  }
   .hero {
     min-height: 700px;
   }
@@ -1214,7 +1438,9 @@ select {
     font-size: 40px;
   }
   .principles,
-  .cards {
+  .cards,
+  .contact-grid,
+  .quick-answers > div {
     grid-template-columns: 1fr;
   }
   .principles > div,
@@ -1227,7 +1453,36 @@ select {
     border-top: 0;
   }
   .principles article {
-    min-height: 190px;
+    min-height: 0;
+    padding: 26px 24px 30px;
+  }
+  .contact-grid > a + a {
+    border-left: 0;
+    border-top: 1px solid var(--line);
+  }
+  .contact-grid > a {
+    min-height: 225px;
+    padding: 26px;
+  }
+  .quick-answers > div {
+    gap: 34px;
+  }
+  .career-trigger > span {
+    grid-template-columns: 1fr;
+    gap: 7px;
+  }
+  .career-trigger {
+    align-items: start;
+  }
+  .career-trigger i {
+    padding-right: 14px;
+  }
+  .career-panel {
+    padding: 0 4px 30px;
+  }
+  .copy-field > div {
+    grid-template-columns: 1fr;
+    gap: 5px;
   }
   .waitlist {
     padding: 60px 0 90px;
@@ -1251,8 +1506,20 @@ select {
   .page {
     padding-top: 100px;
   }
+  .compact-page,
+  .product-page {
+    padding-top: 74px;
+  }
   .intro {
     padding-bottom: 60px;
+  }
+  .compact-page .intro,
+  .product-page .intro {
+    padding: 42px 0 48px;
+  }
+  .compact-page .intro h1,
+  .product-page .intro h1 {
+    font-size: 42px;
   }
   .team-page {
     padding-top: 58px;
