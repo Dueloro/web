@@ -581,7 +581,6 @@ select {
 }
 .intro {
   padding: 70px 0 90px;
-  border-bottom: 1px solid var(--line);
 }
 .intro h1 {
   max-width: 14ch;
@@ -619,12 +618,12 @@ select {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   border: 1px solid var(--line);
-  margin: 54px 0 86px;
+  margin: 32px 0 110px;
 }
 .contact-grid > a {
   position: relative;
-  min-height: 250px;
-  padding: 32px;
+  min-height: 190px;
+  padding: 26px 28px;
   transition: background 0.25s ease;
 }
 .contact-grid > a + a {
@@ -641,42 +640,21 @@ select {
   letter-spacing: 0.11em;
 }
 .contact-grid h2 {
-  margin: 54px 0 12px;
+  margin: 32px 0 8px;
   font-size: clamp(20px, 2.5vw, 30px);
   letter-spacing: -0.03em;
 }
 .contact-grid p {
   max-width: 38ch;
+  margin: 0;
   color: var(--muted);
   font-size: 14px;
 }
 .contact-grid b {
   position: absolute;
-  bottom: 28px;
+  right: 28px;
+  top: 27px;
   color: var(--lime);
-}
-.quick-answers {
-  padding: 0 0 110px;
-}
-.quick-answers > div {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 9%;
-  margin-top: 34px;
-}
-.quick-answers article {
-  border-top: 1px solid var(--line);
-  padding-top: 22px;
-}
-.quick-answers h2 {
-  margin: 0 0 14px;
-  font-size: 19px;
-  line-height: 1.3;
-}
-.quick-answers p {
-  margin: 0;
-  color: var(--muted);
-  font-size: 14px;
 }
 .career-tracks {
   border-top: 1px solid var(--line);
@@ -1439,8 +1417,7 @@ select {
   }
   .principles,
   .cards,
-  .contact-grid,
-  .quick-answers > div {
+  .contact-grid {
     grid-template-columns: 1fr;
   }
   .principles > div,
@@ -1461,11 +1438,15 @@ select {
     border-top: 1px solid var(--line);
   }
   .contact-grid > a {
-    min-height: 225px;
-    padding: 26px;
+    min-height: 170px;
+    padding: 24px;
   }
-  .quick-answers > div {
-    gap: 34px;
+  .contact-grid h2 {
+    margin-top: 28px;
+  }
+  .contact-grid b {
+    top: 25px;
+    right: 24px;
   }
   .career-trigger > span {
     grid-template-columns: 1fr;

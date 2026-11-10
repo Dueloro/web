@@ -66,8 +66,7 @@ function Nav() {
   }, []);
   const links = [
     ["/products/money-match", "PRODUCT"],
-    ["/about", "COMPANY"],
-    ["/team", "TEAM"],
+    ["/careers", "CAREERS"],
     ["/contact", "CONTACT"],
   ];
   return (
@@ -456,7 +455,7 @@ function Waitlist() {
                   {state === "sending" ? "JOINING…" : "JOIN WAITLIST"}
                 </button>
                 <small>
-                  See our <Link to="/privacy">Privacy Policy</Link>.
+                  No spam. Unsubscribe at any time.
                 </small>
               </div>
               {state === "error" && (
@@ -531,7 +530,7 @@ function Contact() {
         <a href="mailto:hello@dueloro.com">
           <span>GENERAL</span>
           <h2>hello@dueloro.com</h2>
-          <p>Company questions, partnerships, press, and careers.</p>
+          <p>Company questions, partnerships, and press.</p>
           <b>WRITE TO US ↗</b>
         </a>
         <a href="mailto:support@dueloro.com">
@@ -541,25 +540,6 @@ function Contact() {
           <b>GET SUPPORT ↗</b>
         </a>
       </div>
-      <section className="quick-answers">
-        <Eye>QUICK ANSWERS</Eye>
-        <div>
-          <article>
-            <h2>When will real-money contests be available?</h2>
-            <p>
-              Timing will depend on eligibility, location, final product rules,
-              and regulatory readiness. Join the waitlist for launch updates.
-            </p>
-          </article>
-          <article>
-            <h2>How do I report a product or account issue?</h2>
-            <p>
-              Email support@dueloro.com with the account email and a concise
-              description of what happened.
-            </p>
-          </article>
-        </div>
-      </section>
     </div>
   );
 }
@@ -616,11 +596,7 @@ function Careers() {
       <Intro eye="CAREERS" title="Join the team.">
         <p>
           If you are excited about the future of skill-based competition and
-          care deeply about fintech, AI, or video games, learn more about our{" "}
-          <Link className="text-link" to="/team">
-            team
-          </Link>{" "}
-          and explore a track below.
+          care deeply about fintech, AI, or video games, explore a track below.
         </p>
       </Intro>
       <div className="career-tracks">
@@ -1015,28 +991,9 @@ const meta: Record<string, [string, string]> = {
     "Money Match — Dueloro",
     "Skill contracts for the competitive video games you already play.",
   ],
-  "/about": [
-    "About — Dueloro",
-    "Why Dueloro builds trusted competitive software.",
-  ],
-  "/team": ["Team — Dueloro", "Meet the people building Dueloro."],
-  "/team/mazlowe-wood": [
-    "Mazlowe Wood — Dueloro",
-    "Meet Dueloro co-founder and CEO Mazlowe Wood.",
-  ],
-  "/team/shreyansh-misra": [
-    "Shreyansh Misra — Dueloro",
-    "Meet Dueloro co-founder and CTO Shreyansh Misra.",
-  ],
   "/careers": ["Careers — Dueloro", "Work at Dueloro."],
-  "/blog": ["Blog — Dueloro", "Notes and company updates from Dueloro."],
-  "/updates": ["Blog — Dueloro", "Notes and company updates from Dueloro."],
   "/contact": ["Contact — Dueloro", "Contact Dueloro."],
   "/help": ["Contact — Dueloro", "Contact Dueloro."],
-  "/regulatory": ["Regulatory — Dueloro", "Current product availability."],
-  "/privacy": ["Privacy — Dueloro", "Dueloro website privacy policy."],
-  "/terms": ["Terms — Dueloro", "Dueloro website terms."],
-  "/security": ["Security — Dueloro", "Report security issues."],
 };
 
 function Footer() {
@@ -1059,24 +1016,17 @@ function Footer() {
           </div>
           <div>
             <h2>COMPANY</h2>
-            <Link to="/about">About</Link>
-            <Link to="/team">Team</Link>
             <Link to="/careers">Careers</Link>
-            <Link to="/blog">Blog</Link>
           </div>
           <div>
             <h2>HELP</h2>
-            <Link to="/contact">Help & FAQ</Link>
-            <Link to="/regulatory">Regulatory</Link>
-            <Link to="/security">Security</Link>
+            <Link to="/contact">Contact</Link>
           </div>
         </div>
         <div className="footer-word">DUELORO</div>
         <div className="footer-bottom">
           <span>© {new Date().getFullYear()} DUELORO</span>
           <div>
-            <Link to="/privacy">Privacy</Link>
-            <Link to="/terms">Terms</Link>
             <a href="/#real-money-waitlist">Real-money waitlist</a>
           </div>
         </div>
@@ -1090,8 +1040,7 @@ export default function App() {
   useEffect(() => {
     scrollTo(0, 0);
     const m = meta[path] || ["Page not found — Dueloro", meta["/"][1]];
-    const canonicalPath =
-      path === "/help" ? "/contact" : path === "/updates" ? "/blog" : path;
+    const canonicalPath = path === "/help" ? "/contact" : path;
     document.title = m[0];
     document
       .querySelector('meta[name="description"]')
@@ -1112,60 +1061,12 @@ export default function App() {
     case "/products/money-match":
       page = <MoneyMatch />;
       break;
-    case "/about":
-      page = (
-        <Basic
-          eye="COMPANY"
-          title="Building the trusted layer for skill-based competition."
-        >
-          <p>
-            Dueloro is focused on identity, fair competition, and results that
-            can be verified—not argued over.
-          </p>
-        </Basic>
-      );
-      break;
-    case "/team":
-      page = <Team />;
-      break;
-    case "/team/mazlowe-wood":
-      page = <TeamProfile person={people[0]} />;
-      break;
-    case "/team/shreyansh-misra":
-      page = <TeamProfile person={people[1]} />;
-      break;
     case "/careers":
       page = <Careers />;
-      break;
-    case "/blog":
-    case "/updates":
-      page = <Blog />;
       break;
     case "/contact":
     case "/help":
       page = <Contact />;
-      break;
-    case "/security":
-      page = (
-        <Basic eye="SECURITY" title="Report security issues responsibly.">
-          <p>
-            Send reports with reproduction steps and impact to{" "}
-            <a className="text-link" href="mailto:support@dueloro.com">
-              support@dueloro.com
-            </a>
-            .
-          </p>
-        </Basic>
-      );
-      break;
-    case "/privacy":
-      page = <Legal type="privacy" />;
-      break;
-    case "/terms":
-      page = <Legal type="terms" />;
-      break;
-    case "/regulatory":
-      page = <Legal type="regulatory" />;
       break;
     default:
       page = (

@@ -39,3 +39,9 @@ optional customer-discovery survey. Do not point the form at browser storage.
 The current Money Match experience is a product demo. Deposits, withdrawals,
 and real-money contests are not enabled. The waitlist is for future launch
 updates, not a guarantee of access or eligibility.
+
+## Deferred pages
+
+The following pages are intentionally not public until their content and design
+are complete: Company, About, Team, Blog, Security, Regulatory, Privacy, and
+Terms.
