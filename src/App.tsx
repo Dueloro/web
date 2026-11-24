@@ -64,21 +64,16 @@ function Nav() {
     addEventListener("keydown", close);
     return () => removeEventListener("keydown", close);
   }, []);
-  const links = [
-    ["/products/money-match", "PRODUCT"],
-    ["/careers", "CAREERS"],
-    ["/contact", "CONTACT"],
-  ];
   return (
     <header className="site-header">
       <nav className="nav container" aria-label="Primary">
         <Brand />
         <div className="nav-links">
-          {links.map(([to, label]) => (
-            <Link key={to} to={to}>
-              {label}
-            </Link>
-          ))}
+          <Link to="/products/money-match">PRODUCT</Link>
+          <a href={DECK_URL} target="_blank" rel="noopener noreferrer">
+            PITCH DECK
+          </a>
+          <Link to="/contact">CONTACT</Link>
         </div>
         <div className="nav-actions">
           <a className="waitlist-link" href="/#real-money-waitlist">
@@ -101,11 +96,20 @@ function Nav() {
       </nav>
       {open && (
         <div id="mobile-nav" className="mobile-nav">
-          {links.map(([to, label]) => (
-            <Link key={to} to={to} onClick={() => setOpen(false)}>
-              {label}
-            </Link>
-          ))}
+          <Link to="/products/money-match" onClick={() => setOpen(false)}>
+            PRODUCT
+          </Link>
+          <a
+            href={DECK_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            onClick={() => setOpen(false)}
+          >
+            PITCH DECK
+          </a>
+          <Link to="/contact" onClick={() => setOpen(false)}>
+            CONTACT
+          </Link>
           <a href="/#real-money-waitlist" onClick={() => setOpen(false)}>
             REAL-MONEY WAITLIST
           </a>
@@ -590,7 +594,7 @@ const careerTracks = [
 ];
 
 function Careers() {
-  const [open, setOpen] = useState<string | null>("engineering");
+  const [open, setOpen] = useState<string | null>(null);
   return (
     <div className="page compact-page careers-page container">
       <Intro eye="CAREERS" title="Join the team.">
